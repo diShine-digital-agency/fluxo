@@ -26,6 +26,7 @@ from fluxo.services import (
     EpgMapper,
     ExportService,
     ProjectManager,
+    SharingService,
     ValidationService,
 )
 from fluxo.ui.shortcuts import ShortcutManager
@@ -43,6 +44,7 @@ from fluxo.ui.widgets.dialogs import (
     ExportDialog,
     ImportDialog,
     SettingsDialog,
+    SharingDialog,
 )
 
 
@@ -93,6 +95,7 @@ class MainWindow(QMainWindow):
         self._autosave_mgr: AutosaveManager | None = None
         self._worker: _Worker | None = None
         self._theme = "dark"
+        self._sharing_svc = SharingService()
 
         # -- ui setup --------------------------------------------------------
         self._build_widgets()
@@ -148,6 +151,8 @@ class MainWindow(QMainWindow):
         file_menu.addSeparator()
         self._add_action(file_menu, "&Import M3U…", self.import_m3u, QKeySequence("Ctrl+I"))
         self._add_action(file_menu, "&Export M3U…", self.export_m3u, QKeySequence("Ctrl+E"))
+        file_menu.addSeparator()
+        self._add_action(file_menu, "&Host && Share…", self._open_sharing, QKeySequence("Ctrl+H"))
         file_menu.addSeparator()
         self._recent_menu = file_menu.addMenu("Recent Files")
         self._rebuild_recent_menu()
@@ -327,6 +332,11 @@ class MainWindow(QMainWindow):
             self._status_bar.showMessage("Playlist merged.", 3000)
         except Exception as exc:  # noqa: BLE001
             QMessageBox.critical(self, "Error", f"Failed to merge playlist:\n{exc}")
+
+    def _open_sharing(self) -> None:
+        """Open the Host & Share dialog for the current playlist."""
+        dlg = SharingDialog(self._project.playlist, self._sharing_svc, self)
+        dlg.exec()
 
     # -- Edit ----------------------------------------------------------------
 
@@ -757,6 +767,8 @@ class MainWindow(QMainWindow):
             event.ignore()
             return
         self._save_state()
+        if self._sharing_svc.is_running:
+            self._sharing_svc.stop()
         if self._worker and self._worker.isRunning():
             self._worker.quit()
             self._worker.wait(3000)

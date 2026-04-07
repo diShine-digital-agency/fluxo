@@ -337,7 +337,9 @@ class ChannelFilterProxyModel(QSortFilterProxyModel):
     def set_favorites_only(self, enabled: bool) -> None:
         """When *enabled*, only show channels marked as favorite."""
         self._favorites_only = enabled
-        self.invalidateFilter()
+        # Re-apply the current filter text to trigger re-filtering without
+        # calling the deprecated invalidateFilter().
+        self.setFilterFixedString(self.filterRegularExpression().pattern())
 
     @property
     def favorites_only(self) -> bool:
