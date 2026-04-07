@@ -14,6 +14,9 @@ from fluxo.models.epg import EpgChannel, EpgData, EpgProgramme
 
 logger = logging.getLogger(__name__)
 
+# Default HTTP timeout in seconds for downloading EPG data
+DEFAULT_TIMEOUT = 30.0
+
 
 class XmltvParser:
     """Parser for XMLTV-format EPG (Electronic Programme Guide) data.
@@ -68,7 +71,7 @@ class XmltvParser:
 
     def parse_url(self, url: str) -> EpgData:
         """Download from *url* (handles .gz) and parse as XMLTV."""
-        with httpx.Client(follow_redirects=True, timeout=60.0) as client:
+        with httpx.Client(follow_redirects=True, timeout=DEFAULT_TIMEOUT) as client:
             response = client.get(url)
             response.raise_for_status()
 

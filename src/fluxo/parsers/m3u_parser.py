@@ -15,6 +15,9 @@ from fluxo.models.playlist import Playlist
 
 logger = logging.getLogger(__name__)
 
+# Default HTTP timeout in seconds for downloading playlists
+DEFAULT_TIMEOUT = 30.0
+
 # Regex for quoted attributes: key="value"
 _RE_ATTR_QUOTED = re.compile(r'([a-zA-Z_][\w-]*)="([^"]*)"')
 # Regex for single-quoted attributes: key='value'
@@ -145,7 +148,7 @@ class M3UParser:
         file_path = Path(path)
         raw = file_path.read_bytes()
 
-        detected = chardet.detect(raw)
+        detected = chardet.detect(raw) or {}
         encoding = detected.get("encoding") or "utf-8"
         try:
             content = raw.decode(encoding)
@@ -158,7 +161,7 @@ class M3UParser:
 
     def parse_url(self, url: str) -> ParseResult:
         """Download from *url* using httpx and parse as M3U."""
-        with httpx.Client(follow_redirects=True, timeout=30.0) as client:
+        with httpx.Client(follow_redirects=True, timeout=DEFAULT_TIMEOUT) as client:
             response = client.get(url)
             response.raise_for_status()
 
