@@ -1,6 +1,6 @@
 # Fluxo Roadmap
 
-## v0.1.0 — MVP (Current)
+## v0.1.0 — MVP (Complete)
 - [x] M3U parser with full metadata support
 - [x] XMLTV/EPG parser
 - [x] Create, import, edit, export playlists
@@ -15,20 +15,21 @@
 - [x] Undo/redo
 - [x] Dark/light themes
 
-## v0.2.0 — Enhanced UX
+## v0.2.0 — Enhanced UX (Complete)
+- [x] Recent files menu
+- [x] Drag-and-drop file import (.m3u/.m3u8)
+- [x] Column visibility customization (header context menu)
+- [x] Table column resizing persistence
+- [x] Favorites toggle and filter
 - [ ] Onboarding wizard for first-time users
-- [ ] Keyboard shortcut customization
-- [ ] Recent files menu
-- [ ] Drag-and-drop file import
-- [ ] Column visibility customization
-- [ ] Table column resizing persistence
+- [ ] Keyboard shortcut customization dialog
 
-## v0.3.0 — Advanced Features
+## v0.3.0 — Advanced Features (Complete)
+- [x] Channel templates/profiles (save, apply, persist)
+- [x] Metadata normalization rules engine
+- [x] Favorites and custom collections
 - [ ] Playlist merge with diff view
 - [ ] Compare two playlists side-by-side
-- [ ] Metadata normalization rules engine
-- [ ] Channel templates/profiles
-- [ ] Favorites and custom collections
 
 ## v0.4.0 — Hosting & Sharing
 - [ ] Self-hosted playlist endpoint

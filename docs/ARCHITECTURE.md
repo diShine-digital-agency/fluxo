@@ -43,6 +43,8 @@ Fluxo follows a clean layered architecture with clear separation of concerns.
 - `ExportService` — clean M3U/M3U8 export with metadata preservation
 - `ProjectManager` — save/load project files, autosave
 - `EpgMapper` — intelligent EPG-to-channel mapping with fuzzy matching
+- `TemplateService` — channel templates/profiles for reusable metadata presets
+- `NormalizationService` — metadata cleanup rules (group names, channel names, URLs)
 
 ### UI Layer (`src/fluxo/ui/`)
 - `MainWindow` — primary application window with menu bar and status bar
