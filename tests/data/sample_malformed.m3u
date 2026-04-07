@@ -1,0 +1,13 @@
+#EXTINF:-1 tvg-id="ch1" tvg-name="Channel 1" group-title="Group A",Channel 1
+http://example.com/ch1
+This is not a valid line
+#EXTINF:-1 tvg-name="No ID Channel" group-title="Group B"
+http://example.com/ch2
+#EXTINF:-1 tvg-id="ch3" tvg-name="Channel 3" group-title="Group A",Channel 3
+http://example.com/ch3
+
+#EXTINF:-1 group-title="Group C",Minimal Channel
+http://example.com/ch4
+#EXTINF:broken data here
+http://example.com/ch5
+http://example.com/bare-url
