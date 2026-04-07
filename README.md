@@ -1,9 +1,15 @@
 # Fluxo
 
-A dedicated M3U/IPTV playlist manager for power users. Parse massive M3U lists from file or URL to visually edit channel orders, rename streams, fix broken EPG/XMLTV links, and assign custom logos. Save your optimized playlist locally or host it as a dynamic link for immediate streaming.
+**A dedicated M3U/IPTV playlist manager for power users.**
+
+Parse massive M3U lists from file or URL to visually edit channel orders, rename streams, fix broken EPG/XMLTV links, and assign custom logos. Save your optimized playlist locally or host it as a dynamic link for immediate streaming.
+
+Built by [diShine Digital Agency](https://dishine.it).
 
 > **Fluxo is a neutral playlist-management tool for lawful personal and organizational use.**
 > It does not bundle, provide, or facilitate access to copyrighted streams or pirate content.
+
+---
 
 ## Features
 
@@ -43,6 +49,8 @@ A dedicated M3U/IPTV playlist manager for power users. Parse massive M3U lists f
 - Multi-select with contextual actions
 - Desktop-first native experience (PySide6/Qt)
 
+---
+
 ## User Interface
 
 Fluxo uses a three-panel layout optimized for playlist editing workflows:
@@ -71,6 +79,8 @@ Fluxo uses a three-panel layout optimized for playlist editing workflows:
 - **Channel table** (center) — sortable, searchable list with inline editing
 - **Detail panel** (right) — edit all metadata for the selected channel
 
+---
+
 ## Sharing Workflow
 
 Host your playlist on the local network so other devices can stream from it:
@@ -98,6 +108,8 @@ Host your playlist on the local network so other devices can stream from it:
 3. Copy the generated URL (e.g. `http://192.168.1.42:7481/playlist/abc123…`)
 4. Paste the URL into any IPTV player on your network
 
+---
+
 ## Keyboard Shortcuts
 
 | Shortcut | Action |
@@ -117,6 +129,8 @@ Host your playlist on the local network so other devices can stream from it:
 | `Ctrl+G` | Go to group |
 | `Delete` | Delete selected |
 | `F5` | Refresh / check streams |
+
+---
 
 ## Installation
 
@@ -149,6 +163,8 @@ pip install pyinstaller
 python scripts/build.py
 ```
 
+---
+
 ## Tech Stack
 
 | Component | Technology |
@@ -160,6 +176,8 @@ python scripts/build.py
 | Encoding Detection | chardet |
 | Packaging | PyInstaller |
 | Testing | pytest + pytest-qt |
+
+---
 
 ## Project Structure
 
@@ -177,6 +195,8 @@ src/fluxo/
 └── __main__.py      # Module entry point
 ```
 
+---
+
 ## Testing
 
 ```bash
@@ -187,15 +207,32 @@ pytest
 QT_QPA_PLATFORM=offscreen pytest
 ```
 
+---
+
 ## Documentation
 
 - [Product Discovery Report](docs/PRODUCT_DISCOVERY.md)
 - [Architecture](docs/ARCHITECTURE.md)
 - [Roadmap](docs/ROADMAP.md)
+- [Changelog](CHANGELOG.md)
 - [Contributing](CONTRIBUTING.md)
 - [Security](SECURITY.md)
 - [Code of Conduct](CODE_OF_CONDUCT.md)
 
+---
+
 ## License
 
-[MIT](LICENSE)
+MIT License — see [LICENSE](LICENSE) for details.
+
+Copyright (c) 2026 [diShine Digital Agency](https://dishine.it)
+
+---
+
+## About diShine
+
+[diShine](https://dishine.it) is a creative tech agency based in Milan. We build tools for digital consultants, help businesses with AI strategy and MarTech architecture, and open-source the things we wish existed.
+
+- Web: [dishine.it](https://dishine.it)
+- GitHub: [github.com/diShine-digital-agency](https://github.com/diShine-digital-agency)
+- Contact: kevin@dishine.it

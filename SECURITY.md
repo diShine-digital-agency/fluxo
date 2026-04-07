@@ -1,5 +1,9 @@
 # Security Policy
 
+Fluxo is a local-first desktop application. All playlist data is processed on your machine. The optional local playlist server runs on your LAN and is not exposed to the internet by default.
+
+---
+
 ## Supported Versions
 
 | Version | Supported          |
@@ -7,14 +11,22 @@
 | 1.0.x   | :white_check_mark: |
 | < 1.0   | :x:                |
 
+---
+
 ## Reporting a Vulnerability
 
 If you discover a security vulnerability in Fluxo, please report it responsibly:
 
-1. **Do not** open a public issue
-2. Email security concerns to the project maintainers
-3. Include a description of the vulnerability and steps to reproduce
-4. Allow reasonable time for a fix before public disclosure
+1. **Email**: Send a description to kevin@dishine.it with the subject line `[Fluxo Security]`.
+2. **Do not** open a public GitHub issue for security vulnerabilities.
+3. Include:
+   - A description of the vulnerability and its potential impact.
+   - Steps to reproduce the issue.
+   - The affected file(s) and, if possible, a suggested fix.
+
+We will acknowledge your report within 48 hours and aim to release a fix within 7 days for critical issues.
+
+---
 
 ## Security Design
 
@@ -27,6 +39,8 @@ Fluxo is designed with security in mind:
 - **Input validation**: All imported files are parsed with strict validation
 - **No code execution**: Playlist files are treated as data, never executed
 
+---
+
 ### Sharing & Server Security
 
 When the optional local playlist server is enabled:
@@ -38,6 +52,14 @@ When the optional local playlist server is enabled:
 - **Link expiration**: Shared links support optional expiry timestamps
 - **Revocation**: Links can be permanently deactivated at any time
 
+---
+
 ## Dependencies
 
 We regularly review and update dependencies to address known vulnerabilities.
+
+---
+
+## Disclosure
+
+We follow a coordinated disclosure approach. Once a fix has been merged, we will credit the reporter in the changelog unless they prefer to remain anonymous.

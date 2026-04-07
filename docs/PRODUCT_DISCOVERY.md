@@ -174,3 +174,7 @@ Fluxo is a dedicated M3U / IPTV playlist manager designed for power users who ne
 - **Clear positioning** — README and docs explicitly state lawful-use-only intent
 - **LGPL compliance** — PySide6 is LGPL, which is compatible with commercial/open-source use
 - **Safe defaults** — no features that encourage or facilitate infringement
+
+---
+
+*Part of [Fluxo](../README.md) by [diShine Digital Agency](https://dishine.it).*

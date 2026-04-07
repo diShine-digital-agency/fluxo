@@ -48,3 +48,7 @@
 - [ ] Playlist merge with diff view
 - [ ] Compare two playlists side-by-side
 - [ ] Performance benchmarks
+
+---
+
+*Part of [Fluxo](../README.md) by [diShine Digital Agency](https://dishine.it).*

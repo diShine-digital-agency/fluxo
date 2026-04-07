@@ -149,3 +149,7 @@ Fluxo follows a clean layered architecture with clear separation of concerns.
 5. **JSON project files** — Human-readable, versionable project format (.fluxo)
 6. **Lazy imports** — `SharingService` uses a lazy import for `PlaylistServer` to avoid circular dependencies via `services/__init__.py`
 7. **Localhost by default** — `PlaylistServer` binds to `127.0.0.1`; `SharingService` opts in to `0.0.0.0` for LAN sharing
+
+---
+
+*Part of [Fluxo](../README.md) by [diShine Digital Agency](https://dishine.it).*
