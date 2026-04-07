@@ -25,6 +25,11 @@ class SharingService:
 
     Wraps :class:`PlaylistServer` and persists link metadata to the Fluxo
     configuration directory so links survive application restarts.
+
+    By default the service binds to ``0.0.0.0`` (all interfaces) so that
+    playlists can be accessed by other devices on the local network.  The
+    underlying :class:`PlaylistServer` defaults to ``127.0.0.1`` (localhost
+    only) when used directly.
     """
 
     _LINKS_FILE = "shared_links.json"
