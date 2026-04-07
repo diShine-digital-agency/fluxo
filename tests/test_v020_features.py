@@ -5,23 +5,22 @@ from __future__ import annotations
 import json
 
 import pytest
-from PySide6.QtCore import QMimeData, QModelIndex, Qt, QUrl
+from PySide6.QtCore import Qt
 
 from fluxo.models import Channel, Playlist
 from fluxo.persistence.settings import Settings
 from fluxo.ui.widgets.channel_table import (
-    ChannelFilterProxyModel,
-    ChannelTableModel,
-    ChannelTableWidget,
     _COL_FAVORITE,
     _COL_GROUP,
     _COL_NAME,
     _COLUMNS_FULL,
     _STAR_EMPTY,
     _STAR_FILLED,
+    ChannelFilterProxyModel,
+    ChannelTableModel,
+    ChannelTableWidget,
 )
 from fluxo.ui.widgets.search_bar import SearchBar
-
 
 # ---------------------------------------------------------------------------
 # Helpers

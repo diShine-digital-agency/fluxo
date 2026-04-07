@@ -5,7 +5,7 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
-from PySide6.QtCore import QSize, QThread, Qt, Signal, Slot
+from PySide6.QtCore import QSize, Qt, QThread, Signal, Slot
 from PySide6.QtGui import QAction, QCloseEvent, QDragEnterEvent, QDropEvent, QKeySequence
 from PySide6.QtWidgets import (
     QApplication,
@@ -17,14 +17,12 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from fluxo.models import Channel, EpgData, HealthStatus, Playlist, Project
-from fluxo.parsers import M3UParser, XmltvParser
+from fluxo.models import Channel, Playlist, Project
+from fluxo.parsers import M3UParser
 from fluxo.persistence import AutosaveManager, Settings
 from fluxo.services import (
-    BulkOperationService,
     DeduplicationService,
     EpgMapper,
-    ExportService,
     ProjectManager,
     SharingService,
     ValidationService,
@@ -46,7 +44,6 @@ from fluxo.ui.widgets.dialogs import (
     SettingsDialog,
     SharingDialog,
 )
-
 
 # ---------------------------------------------------------------------------
 # Background worker
@@ -140,19 +137,24 @@ class MainWindow(QMainWindow):
     # ------------------------------------------------------------- menu bar
     def _build_menu_bar(self) -> None:
         mb = self.menuBar()
+        _std = QKeySequence.StandardKey
 
         # -- File ------------------------------------------------------------
         file_menu = mb.addMenu("&File")
-        self._add_action(file_menu, "&New Playlist", self.new_playlist, QKeySequence.StandardKey.New)
-        self._add_action(file_menu, "&Open Project…", self.open_project, QKeySequence.StandardKey.Open)
+        self._add_action(file_menu, "&New Playlist", self.new_playlist, _std.New)
+        self._add_action(file_menu, "&Open Project…", self.open_project, _std.Open)
         file_menu.addSeparator()
-        self._add_action(file_menu, "&Save Project", self.save_project, QKeySequence.StandardKey.Save)
-        self._add_action(file_menu, "Save &As…", self.save_project_as, QKeySequence("Ctrl+Shift+S"))
+        self._add_action(file_menu, "&Save Project", self.save_project, _std.Save)
+        self._add_action(
+            file_menu, "Save &As…", self.save_project_as, QKeySequence("Ctrl+Shift+S"),
+        )
         file_menu.addSeparator()
         self._add_action(file_menu, "&Import M3U…", self.import_m3u, QKeySequence("Ctrl+I"))
         self._add_action(file_menu, "&Export M3U…", self.export_m3u, QKeySequence("Ctrl+E"))
         file_menu.addSeparator()
-        self._add_action(file_menu, "&Host && Share…", self._open_sharing, QKeySequence("Ctrl+H"))
+        self._add_action(
+            file_menu, "&Host && Share…", self._open_sharing, QKeySequence("Ctrl+H"),
+        )
         file_menu.addSeparator()
         self._recent_menu = file_menu.addMenu("Recent Files")
         self._rebuild_recent_menu()
@@ -161,21 +163,38 @@ class MainWindow(QMainWindow):
 
         # -- Edit ------------------------------------------------------------
         edit_menu = mb.addMenu("&Edit")
-        self._undo_action = self._add_action(edit_menu, "&Undo", self.undo, QKeySequence.StandardKey.Undo)
-        self._redo_action = self._add_action(edit_menu, "&Redo", self.redo, QKeySequence("Ctrl+Shift+Z"))
+        self._undo_action = self._add_action(
+            edit_menu, "&Undo", self.undo, _std.Undo,
+        )
+        self._redo_action = self._add_action(
+            edit_menu, "&Redo", self.redo, QKeySequence("Ctrl+Shift+Z"),
+        )
         edit_menu.addSeparator()
-        self._add_action(edit_menu, "Select &All", self._channel_table.select_all, QKeySequence.StandardKey.SelectAll)
-        self._add_action(edit_menu, "&Delete Selected", self.delete_selected, QKeySequence(Qt.Key.Key_Delete))
+        self._add_action(
+            edit_menu, "Select &All", self._channel_table.select_all, _std.SelectAll,
+        )
+        self._add_action(
+            edit_menu, "&Delete Selected", self.delete_selected,
+            QKeySequence(Qt.Key.Key_Delete),
+        )
         edit_menu.addSeparator()
-        self._add_action(edit_menu, "&Find && Replace", self._focus_search, QKeySequence.StandardKey.Find)
+        self._add_action(
+            edit_menu, "&Find && Replace", self._focus_search, _std.Find,
+        )
         self._add_action(edit_menu, "&Preferences…", self._open_preferences)
 
         # -- Playlist --------------------------------------------------------
         playlist_menu = mb.addMenu("&Playlist")
         self._add_action(playlist_menu, "&Add Channel", self.add_channel)
-        self._add_action(playlist_menu, "&Duplicate Detection", self.find_duplicates, QKeySequence("Ctrl+D"))
+        self._add_action(
+            playlist_menu, "&Duplicate Detection", self.find_duplicates,
+            QKeySequence("Ctrl+D"),
+        )
         self._add_action(playlist_menu, "&Bulk Edit…", self.bulk_edit)
-        self._add_action(playlist_menu, "&Check Stream Health", self.check_streams, QKeySequence(Qt.Key.Key_F5))
+        self._add_action(
+            playlist_menu, "&Check Stream Health", self.check_streams,
+            QKeySequence(Qt.Key.Key_F5),
+        )
         self._add_action(playlist_menu, "&Merge Playlist…", self._merge_playlist)
 
         # -- EPG -------------------------------------------------------------
@@ -187,8 +206,12 @@ class MainWindow(QMainWindow):
         # -- View ------------------------------------------------------------
         view_menu = mb.addMenu("&View")
         self._add_action(view_menu, "Toggle &Dark/Light Theme", self.toggle_theme)
-        self._toggle_group_action = self._add_action(view_menu, "Toggle &Group Panel", self._toggle_group_panel)
-        self._toggle_detail_action = self._add_action(view_menu, "Toggle D&etail Panel", self._toggle_detail_panel)
+        self._toggle_group_action = self._add_action(
+            view_menu, "Toggle &Group Panel", self._toggle_group_panel,
+        )
+        self._toggle_detail_action = self._add_action(
+            view_menu, "Toggle D&etail Panel", self._toggle_detail_panel,
+        )
 
         # -- Help ------------------------------------------------------------
         help_menu = mb.addMenu("&Help")
@@ -762,7 +785,7 @@ class MainWindow(QMainWindow):
 
     # -- close ---------------------------------------------------------------
 
-    def closeEvent(self, event: QCloseEvent) -> None:
+    def closeEvent(self, event: QCloseEvent) -> None:  # noqa: N802
         if not self._confirm_discard():
             event.ignore()
             return

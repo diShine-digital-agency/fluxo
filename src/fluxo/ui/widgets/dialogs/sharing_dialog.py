@@ -148,7 +148,7 @@ class SharingDialog(QDialog):
         elif idx == 4:
             expires_at = datetime.now(timezone.utc) + timedelta(days=30)
 
-        link = self._svc.create_link(
+        self._svc.create_link(
             label=label,
             password=password,
             expires_at=expires_at,

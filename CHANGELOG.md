@@ -1,17 +1,21 @@
 # Changelog
 
-All notable changes to Fluxo will be documented in this file.
+All notable changes to Fluxo are documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.0.0] - 2026-04-07
+---
+
+## [1.0.0] — 2026-04-07
 
 ### Changed
 - Bumped to production-ready v1.0.0
 - Development Status classifier updated to Beta
 
-## [0.4.0] - 2026-04-07
+---
+
+## [0.4.0] — 2026-04-07
 
 ### Added
 - Self-hosted local playlist server (`src/fluxo/server/`)
@@ -23,14 +27,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `SharingService` facade for link CRUD and persistence
 - Health endpoint (`/health`) on the local server
 
-## [0.3.0] - 2026-04-07
+---
+
+## [0.3.0] — 2026-04-07
 
 ### Added
 - Channel templates/profiles — save, apply, and persist reusable metadata presets
 - Metadata normalization rules engine (group names, channel names, URL cleanup)
 - Custom collections — user-defined channel groupings independent of M3U groups
 
-## [0.2.0] - 2026-04-07
+---
+
+## [0.2.0] — 2026-04-07
 
 ### Added
 - Recent files menu
@@ -39,7 +47,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Table column resizing persistence across sessions
 - Favorites toggle and filter
 
-## [0.1.0] - 2026-04-07
+---
+
+## [0.1.0] — 2026-04-07
 
 ### Added
 - Initial release
@@ -59,3 +69,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Dark and light themes
 - Keyboard shortcuts
 - EPG mapping assistant
+
+---
+
+[1.0.0]: https://github.com/diShine-digital-agency/fluxo/compare/v0.4.0...v1.0.0
+[0.4.0]: https://github.com/diShine-digital-agency/fluxo/compare/v0.3.0...v0.4.0
+[0.3.0]: https://github.com/diShine-digital-agency/fluxo/compare/v0.2.0...v0.3.0
+[0.2.0]: https://github.com/diShine-digital-agency/fluxo/compare/v0.1.0...v0.2.0
+[0.1.0]: https://github.com/diShine-digital-agency/fluxo/releases/tag/v0.1.0

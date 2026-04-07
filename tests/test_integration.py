@@ -1,16 +1,14 @@
 """Integration tests for import/edit/export workflows."""
 from __future__ import annotations
 
-import json
 import tempfile
 from pathlib import Path
 
-from fluxo.parsers.m3u_parser import M3UParser
-from fluxo.services.export_service import ExportService
-from fluxo.services.bulk_operations import BulkOperationService
-from fluxo.services.project_manager import ProjectManager
-from fluxo.models.channel import Channel
 from fluxo.models.project import Project
+from fluxo.parsers.m3u_parser import M3UParser
+from fluxo.services.bulk_operations import BulkOperationService
+from fluxo.services.export_service import ExportService
+from fluxo.services.project_manager import ProjectManager
 
 
 class TestImportEditExport:

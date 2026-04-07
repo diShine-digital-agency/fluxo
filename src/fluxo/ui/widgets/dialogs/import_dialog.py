@@ -5,9 +5,8 @@ from __future__ import annotations
 import logging
 from pathlib import Path
 
-from PySide6.QtCore import Qt, Signal, QThread
+from PySide6.QtCore import QThread, Signal
 from PySide6.QtWidgets import (
-    QCheckBox,
     QComboBox,
     QDialog,
     QDialogButtonBox,
@@ -25,7 +24,6 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from fluxo.models import Playlist
 from fluxo.parsers import M3UParser, ParseResult
 
 logger = logging.getLogger(__name__)

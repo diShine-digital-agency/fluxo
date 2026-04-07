@@ -1,6 +1,8 @@
 # Contributing to Fluxo
 
-Thank you for your interest in contributing to Fluxo! This document provides guidelines for contributing.
+Thank you for your interest in contributing to Fluxo. This document provides guidelines for contributing.
+
+---
 
 ## Getting Started
 
@@ -10,6 +12,8 @@ Thank you for your interest in contributing to Fluxo! This document provides gui
 4. Activate it: `source .venv/bin/activate` (macOS/Linux) or `.venv\Scripts\activate` (Windows)
 5. Install dependencies: `pip install -e ".[dev]"`
 6. Create a branch: `git checkout -b feature/your-feature`
+
+---
 
 ## Development
 
@@ -50,6 +54,8 @@ ruff format --check src/ tests/
 - Use `from __future__ import annotations` for modern type syntax
 - UI code must use **PySide6** (not PyQt6)
 
+---
+
 ## Project Layout
 
 ```
@@ -64,6 +70,8 @@ src/fluxo/
 └── __main__.py      # Module entry point
 ```
 
+---
+
 ## Pull Request Process
 
 1. Update documentation if needed
@@ -73,6 +81,8 @@ src/fluxo/
 5. Update CHANGELOG.md
 6. Submit the pull request
 
+---
+
 ## Reporting Issues
 
 Use GitHub Issues with the provided templates. Include:
@@ -81,8 +91,22 @@ Use GitHub Issues with the provided templates. Include:
 - Actual behavior
 - System information (OS, Python version)
 
+---
+
+## Code of Conduct
+
+All contributors are expected to follow our [Code of Conduct](CODE_OF_CONDUCT.md). In short: be respectful, constructive, and professional.
+
+---
+
+## Questions
+
+If you have questions about contributing, feel free to open an issue or reach out to kevin@dishine.it.
+
+---
+
 ## Legal
 
-By contributing, you agree that your contributions will be licensed under the MIT License.
+By contributing, you agree that your contributions will be licensed under the [MIT License](LICENSE).
 Fluxo is a neutral playlist-management tool. Do not submit contributions that bundle
 copyrighted streams or facilitate piracy.

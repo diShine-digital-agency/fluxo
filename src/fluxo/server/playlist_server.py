@@ -14,6 +14,8 @@ from fluxo.server.shared_link import SharedLink
 from fluxo.services.export_service import ExportService
 
 if TYPE_CHECKING:
+    from datetime import datetime
+
     from fluxo.models.playlist import Playlist
 
 logger = logging.getLogger(__name__)

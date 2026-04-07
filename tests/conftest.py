@@ -1,11 +1,9 @@
 """Fluxo test configuration."""
 from __future__ import annotations
 
-import os
 from pathlib import Path
 
 import pytest
-
 
 DATA_DIR = Path(__file__).parent / "data"
 

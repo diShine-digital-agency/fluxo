@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import json
 import time
 import urllib.request
 from datetime import datetime, timedelta, timezone
@@ -14,7 +13,6 @@ from fluxo.models.playlist import Playlist
 from fluxo.server.playlist_server import PlaylistServer
 from fluxo.server.shared_link import SharedLink, _hash_password, verify_password
 from fluxo.services.sharing_service import SharingService
-
 
 # -----------------------------------------------------------------------
 # SharedLink model
