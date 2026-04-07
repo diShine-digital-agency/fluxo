@@ -1,9 +1,9 @@
 """Tests for validation and deduplication services."""
 from __future__ import annotations
 
-from fluxo.models.channel import Channel, HealthStatus
-from fluxo.models.playlist import Playlist
+from fluxo.models.channel import Channel
 from fluxo.models.epg import EpgChannel, EpgData
+from fluxo.models.playlist import Playlist
 from fluxo.services.deduplication import DeduplicationService
 from fluxo.services.epg_mapper import EpgMapper
 

@@ -26,7 +26,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from fluxo.models import Channel, EpgChannel, EpgData, Playlist
+from fluxo.models import Channel, EpgData, Playlist
 from fluxo.services import EpgMapper
 
 logger = logging.getLogger(__name__)

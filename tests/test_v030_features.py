@@ -12,7 +12,6 @@ from fluxo.models.project import Project
 from fluxo.services.normalization import NormalizationService
 from fluxo.services.template_service import TemplateService
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
