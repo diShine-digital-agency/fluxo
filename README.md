@@ -30,6 +30,12 @@ A dedicated M3U/IPTV playlist manager for power users. Parse massive M3U lists f
 - **Autosave** and crash recovery
 - **Keyboard shortcuts** for all major actions
 
+### Hosting & Sharing
+- **Self-hosted local playlist server** — serve playlists over HTTP on your LAN
+- **Shareable links** with optional password protection (PBKDF2)
+- **Link expiration** and access tracking
+- **Group-filtered sharing** — share a subset of your playlist
+
 ### UX
 - **Dark and light themes** (Catppuccin-inspired)
 - Three-panel layout: Groups | Channels | Details
@@ -86,7 +92,8 @@ python scripts/build.py
 src/fluxo/
 ├── models/          # Typed data models (Channel, Playlist, EPG, Project)
 ├── parsers/         # M3U and XMLTV parsers
-├── services/        # Business logic (validation, dedup, export, EPG mapping)
+├── services/        # Business logic (validation, dedup, export, EPG mapping, sharing)
+├── server/          # Local HTTP playlist server and shared-link management
 ├── ui/              # PySide6 widgets and dialogs
 │   └── widgets/     # Reusable UI components
 ├── persistence/     # Settings and autosave
