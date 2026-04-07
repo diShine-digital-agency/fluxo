@@ -29,10 +29,10 @@ class SharingService:
 
     _LINKS_FILE = "shared_links.json"
 
-    def __init__(self, *, port: int = _DEFAULT_PORT) -> None:
+    def __init__(self, *, port: int = _DEFAULT_PORT, host: str = "0.0.0.0") -> None:
         from fluxo.server.playlist_server import PlaylistServer  # lazy to avoid circular import
 
-        self._server = PlaylistServer(port=port)
+        self._server = PlaylistServer(port=port, host=host)
 
     # ------------------------------------------------------------------
     # Server lifecycle (delegated)

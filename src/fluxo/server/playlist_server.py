@@ -165,8 +165,10 @@ class PlaylistServer:
     """
 
     DEFAULT_PORT = 7481
+    DEFAULT_HOST = "127.0.0.1"
 
-    def __init__(self, port: int = DEFAULT_PORT) -> None:
+    def __init__(self, port: int = DEFAULT_PORT, host: str = DEFAULT_HOST) -> None:
+        self._host = host
         self._port = port
         self._playlist: Playlist | None = None
         self._links: dict[str, SharedLink] = {}
@@ -240,7 +242,7 @@ class PlaylistServer:
         """Start the server in a daemon thread."""
         if self.is_running:
             return
-        self._httpd = PlaylistHTTPServer(("0.0.0.0", self._port), self)
+        self._httpd = PlaylistHTTPServer((self._host, self._port), self)
         self._thread = threading.Thread(target=self._httpd.serve_forever, daemon=True)
         self._thread.start()
         logger.info("Playlist server started on port %d", self._port)
