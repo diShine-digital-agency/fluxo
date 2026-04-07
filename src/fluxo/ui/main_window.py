@@ -6,7 +6,7 @@ import os
 from pathlib import Path
 
 from PySide6.QtCore import QSize, QThread, Qt, Signal, Slot
-from PySide6.QtGui import QAction, QCloseEvent, QKeySequence
+from PySide6.QtGui import QAction, QCloseEvent, QDragEnterEvent, QDropEvent, QKeySequence
 from PySide6.QtWidgets import (
     QApplication,
     QFileDialog,
@@ -102,6 +102,9 @@ class MainWindow(QMainWindow):
         self._setup_shortcuts()
         self._restore_state()
         self._apply_initial_state()
+
+        # Enable drag-and-drop file import
+        self.setAcceptDrops(True)
 
     # ------------------------------------------------------------------ build
     def _build_widgets(self) -> None:
@@ -221,6 +224,7 @@ class MainWindow(QMainWindow):
 
         # Search bar -> table filter
         self._search_bar.search_changed.connect(self._on_search_changed)
+        self._search_bar.favorites_filter_changed.connect(self._on_favorites_filter_changed)
 
         # Table -> detail panel (use selection_changed instead of non-existent channel_selected)
         self._channel_table.selection_changed.connect(self._on_selection_changed)
@@ -228,6 +232,10 @@ class MainWindow(QMainWindow):
         # Detail panel -> refresh
         self._detail_panel.channel_updated.connect(self._on_channel_updated)
         self._detail_panel.channels_bulk_updated.connect(self._on_channel_updated)
+
+        # Column visibility / widths persistence
+        self._channel_table.column_visibility_changed.connect(self._on_column_visibility_changed)
+        self._channel_table.column_widths_changed.connect(self._on_column_widths_changed)
 
     # ============================================================ actions ===
 
@@ -526,6 +534,58 @@ class MainWindow(QMainWindow):
         self._refresh_groups()
         self._update_status()
 
+    def _on_favorites_filter_changed(self, enabled: bool) -> None:
+        """Toggle the favorites-only filter on the proxy model."""
+        self._channel_table.proxy.set_favorites_only(enabled)
+
+    def _on_column_visibility_changed(self, state: dict) -> None:
+        """Persist column visibility state."""
+        self._settings.column_visibility = state
+        self._settings.save()
+
+    def _on_column_widths_changed(self, widths: dict) -> None:
+        """Persist column width state."""
+        self._settings.column_widths = widths
+        self._settings.save()
+
+    # -- drag-and-drop file import ------------------------------------------
+
+    _M3U_EXTENSIONS = {".m3u", ".m3u8"}
+
+    def dragEnterEvent(self, event: QDragEnterEvent) -> None:  # noqa: N802
+        """Accept drag events that contain .m3u / .m3u8 file URLs."""
+        mime = event.mimeData()
+        if mime and mime.hasUrls():
+            for url in mime.urls():
+                if url.isLocalFile():
+                    suffix = Path(url.toLocalFile()).suffix.lower()
+                    if suffix in self._M3U_EXTENSIONS:
+                        event.acceptProposedAction()
+                        return
+        super().dragEnterEvent(event)
+
+    def dropEvent(self, event: QDropEvent) -> None:  # noqa: N802
+        """Import the first valid .m3u/.m3u8 file from the drop."""
+        mime = event.mimeData()
+        if not mime or not mime.hasUrls():
+            return
+        for url in mime.urls():
+            if not url.isLocalFile():
+                continue
+            file_path = url.toLocalFile()
+            suffix = Path(file_path).suffix.lower()
+            if suffix not in self._M3U_EXTENSIONS:
+                continue
+            try:
+                result = M3UParser().parse_file(file_path)
+                self._project.playlist = result.playlist
+                self._refresh_all()
+                self._status_bar.showMessage(f"Imported {Path(file_path).name}.", 3000)
+            except Exception as exc:  # noqa: BLE001
+                QMessageBox.critical(self, "Error", f"Failed to import file:\n{exc}")
+            event.acceptProposedAction()
+            return
+
     # -- refresh helpers -----------------------------------------------------
 
     def _refresh_all(self) -> None:
@@ -626,6 +686,12 @@ class MainWindow(QMainWindow):
                 self._set_default_geometry()
         else:
             self._set_default_geometry()
+
+        # Restore column visibility and widths
+        if self._settings.column_visibility:
+            self._channel_table.restore_column_visibility(self._settings.column_visibility)
+        if self._settings.column_widths:
+            self._channel_table.restore_column_widths(self._settings.column_widths)
 
     def _set_default_geometry(self) -> None:
         self.resize(_DEFAULT_SIZE)

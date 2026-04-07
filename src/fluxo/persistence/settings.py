@@ -31,6 +31,8 @@ class Settings:
     autosave_interval: int = 60
     check_streams_on_import: bool = False
     default_export_encoding: str = "utf-8"
+    column_widths: dict[str, int] = field(default_factory=dict)
+    column_visibility: dict[str, bool] = field(default_factory=dict)
 
     _config_path: str | None = field(default=None, repr=False, compare=False)
 
@@ -93,6 +95,8 @@ class Settings:
             autosave_interval=data.get("autosave_interval", 60),
             check_streams_on_import=data.get("check_streams_on_import", False),
             default_export_encoding=data.get("default_export_encoding", "utf-8"),
+            column_widths=data.get("column_widths", {}),
+            column_visibility=data.get("column_visibility", {}),
         )
         settings._config_path = str(config_path)
         return settings

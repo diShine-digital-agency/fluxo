@@ -37,6 +37,7 @@ _COL_GROUP = 2
 _COL_TVG_ID = 3
 _COL_URL = 4
 _COL_HEALTH = 5
+_COL_FAVORITE = 6
 
 _EDITABLE_COLUMNS = {_COL_NAME, _COL_GROUP, _COL_TVG_ID}
 
@@ -51,6 +52,12 @@ _HEALTH_COLORS: dict[HealthStatus, QColor] = {
 }
 
 _DOT_SIZE = 12
+
+_STAR_FILLED = "★"
+_STAR_EMPTY = "☆"
+
+# Extended column list including Favorite
+_COLUMNS_FULL = ("#", "Name", "Group", "TVG-ID", "URL", "Health", "Fav")
 
 
 def _health_dot(status: HealthStatus) -> QPixmap:
@@ -152,7 +159,7 @@ class ChannelTableModel(QAbstractTableModel):
     def columnCount(self, parent: QModelIndex = QModelIndex()) -> int:  # noqa: N802
         if parent.isValid():
             return 0
-        return len(_COLUMNS)
+        return len(_COLUMNS_FULL)
 
     def data(self, index: QModelIndex, role: int = Qt.ItemDataRole.DisplayRole) -> Any:
         if not index.isValid():
@@ -175,6 +182,10 @@ class ChannelTableModel(QAbstractTableModel):
                 return c
         if role == Qt.ItemDataRole.ToolTipRole and col == _COL_HEALTH:
             return channel.health_status.value.capitalize()
+        if role == Qt.ItemDataRole.ToolTipRole and col == _COL_FAVORITE:
+            return "Favorite" if channel.is_favorite else "Not favorite"
+        if role == Qt.ItemDataRole.TextAlignmentRole and col == _COL_FAVORITE:
+            return Qt.AlignmentFlag.AlignCenter
         return None
 
     def headerData(  # noqa: N802
@@ -184,8 +195,8 @@ class ChannelTableModel(QAbstractTableModel):
         role: int = Qt.ItemDataRole.DisplayRole,
     ) -> Any:
         if role == Qt.ItemDataRole.DisplayRole:
-            if orientation == Qt.Orientation.Horizontal and 0 <= section < len(_COLUMNS):
-                return _COLUMNS[section]
+            if orientation == Qt.Orientation.Horizontal and 0 <= section < len(_COLUMNS_FULL):
+                return _COLUMNS_FULL[section]
         return None
 
     def flags(self, index: QModelIndex) -> Qt.ItemFlag:
@@ -222,6 +233,9 @@ class ChannelTableModel(QAbstractTableModel):
             changed = True
         elif col == _COL_TVG_ID and text != channel.tvg_id:
             channel.tvg_id = text
+            changed = True
+        elif col == _COL_FAVORITE:
+            channel.is_favorite = not channel.is_favorite
             changed = True
 
         if changed:
@@ -287,6 +301,8 @@ class ChannelTableModel(QAbstractTableModel):
             return channel.url
         if col == _COL_HEALTH:
             return channel.health_status.value.capitalize()
+        if col == _COL_FAVORITE:
+            return _STAR_FILLED if channel.is_favorite else _STAR_EMPTY
         return None
 
     @staticmethod
@@ -306,16 +322,37 @@ class ChannelTableModel(QAbstractTableModel):
 
 
 class ChannelFilterProxyModel(QSortFilterProxyModel):
-    """Proxy that filters channels by a search string."""
+    """Proxy that filters channels by a search string and favorites."""
 
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self.setFilterCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
         self.setFilterKeyColumn(-1)  # search all columns
+        self._favorites_only: bool = False
 
     def set_filter_text(self, text: str) -> None:
         """Apply a simple substring filter across all columns."""
         self.setFilterFixedString(text)
+
+    def set_favorites_only(self, enabled: bool) -> None:
+        """When *enabled*, only show channels marked as favorite."""
+        self._favorites_only = enabled
+        self.invalidateRowsFilter()
+
+    @property
+    def favorites_only(self) -> bool:
+        return self._favorites_only
+
+    def filterAcceptsRow(  # noqa: N802
+        self, source_row: int, source_parent: QModelIndex
+    ) -> bool:
+        if self._favorites_only:
+            source_model = self.sourceModel()
+            if isinstance(source_model, ChannelTableModel):
+                channel = source_model.channel_at(source_row)
+                if channel is not None and not channel.is_favorite:
+                    return False
+        return super().filterAcceptsRow(source_row, source_parent)
 
 
 # ---------------------------------------------------------------------------
@@ -330,6 +367,8 @@ class ChannelTableWidget(QWidget):
     selection_changed = Signal(list)  # list[Channel]
     channel_double_clicked = Signal(object)  # Channel
     context_menu_requested = Signal(list, object)  # list[Channel], QPoint
+    column_visibility_changed = Signal(dict)  # {column_name: bool}
+    column_widths_changed = Signal(dict)  # {column_name: int}
 
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
@@ -355,6 +394,12 @@ class ChannelTableWidget(QWidget):
         self._view.doubleClicked.connect(self._on_double_clicked)
         self._view.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self._view.customContextMenuRequested.connect(self._on_context_menu)
+
+        # Header context menu for column visibility
+        header = self._view.horizontalHeader()
+        header.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        header.customContextMenuRequested.connect(self._on_header_context_menu)
+        header.sectionResized.connect(self._on_section_resized)
 
     # -- public API --------------------------------------------------------
 
@@ -406,6 +451,47 @@ class ChannelTableWidget(QWidget):
         """Filter visible channels by *text*."""
         self._proxy.set_filter_text(text)
 
+    def set_column_visibility(self, col: int, visible: bool) -> None:
+        """Show or hide a table column by index."""
+        self._view.setColumnHidden(col, not visible)
+        self._emit_visibility_state()
+
+    def get_column_visibility(self) -> dict[str, bool]:
+        """Return a dict mapping column names to their visibility state."""
+        result: dict[str, bool] = {}
+        for i, name in enumerate(_COLUMNS_FULL):
+            result[name] = not self._view.isColumnHidden(i)
+        return result
+
+    def restore_column_visibility(self, state: dict[str, bool]) -> None:
+        """Restore column visibility from a saved state dict."""
+        for i, name in enumerate(_COLUMNS_FULL):
+            if name in state:
+                self._view.setColumnHidden(i, not state[name])
+
+    def get_column_widths(self) -> dict[str, int]:
+        """Return a dict mapping column names to their current pixel widths."""
+        header = self._view.horizontalHeader()
+        result: dict[str, int] = {}
+        for i, name in enumerate(_COLUMNS_FULL):
+            result[name] = header.sectionSize(i)
+        return result
+
+    def restore_column_widths(self, widths: dict[str, int]) -> None:
+        """Restore column widths from a saved state dict."""
+        header = self._view.horizontalHeader()
+        for i, name in enumerate(_COLUMNS_FULL):
+            if name in widths:
+                header.resizeSection(i, widths[name])
+
+    def toggle_favorite(self, channel: Channel) -> None:
+        """Toggle the favorite status of a channel."""
+        source_row = self._model.row_of(channel)
+        if source_row is None:
+            return
+        index = self._model.index(source_row, _COL_FAVORITE)
+        self._model.setData(index, None, Qt.ItemDataRole.EditRole)
+
     # -- event handling ----------------------------------------------------
 
     def keyPressEvent(self, event: QKeyEvent) -> None:  # noqa: N802
@@ -446,6 +532,7 @@ class ChannelTableWidget(QWidget):
         header.resizeSection(_COL_TVG_ID, 120)
         header.resizeSection(_COL_URL, 250)
         header.resizeSection(_COL_HEALTH, 80)
+        header.resizeSection(_COL_FAVORITE, 50)
 
     def _selected_source_rows(self) -> list[int]:
         """Return sorted source-model row indices for the current selection."""
@@ -454,14 +541,39 @@ class ChannelTableWidget(QWidget):
 
     # -- slots -------------------------------------------------------------
 
+    def _on_header_context_menu(self, pos: object) -> None:
+        """Show a context menu on the header to toggle column visibility."""
+        menu = QMenu(self)
+        for i, name in enumerate(_COLUMNS_FULL):
+            action = QAction(name, self)
+            action.setCheckable(True)
+            action.setChecked(not self._view.isColumnHidden(i))
+            action.toggled.connect(lambda checked, col=i: self.set_column_visibility(col, checked))
+            menu.addAction(action)
+        header = self._view.horizontalHeader()
+        menu.exec(header.mapToGlobal(pos))
+
+    def _on_section_resized(self, _logical: int, _old: int, _new: int) -> None:
+        """Emit column widths whenever the user resizes a section."""
+        self.column_widths_changed.emit(self.get_column_widths())
+
+    def _emit_visibility_state(self) -> None:
+        """Emit the current column visibility state."""
+        self.column_visibility_changed.emit(self.get_column_visibility())
+
     def _on_selection_changed(self) -> None:
         self.selection_changed.emit(self.get_selected_channels())
 
     def _on_double_clicked(self, proxy_index: QModelIndex) -> None:
         source_index = self._proxy.mapToSource(proxy_index)
         channel = self._model.channel_at(source_index.row())
-        if channel is not None:
-            self.channel_double_clicked.emit(channel)
+        if channel is None:
+            return
+        # Clicking the Fav column toggles favorite status
+        if source_index.column() == _COL_FAVORITE:
+            self.toggle_favorite(channel)
+            return
+        self.channel_double_clicked.emit(channel)
 
     def _on_context_menu(self, pos: object) -> None:
         selected = self.get_selected_channels()
@@ -476,10 +588,12 @@ class ChannelTableWidget(QWidget):
         check_stream_action = QAction("Check Stream", self)
         copy_url_action = QAction("Copy URL", self)
         duplicate_action = QAction("Duplicate", self)
+        toggle_fav_action = QAction("Toggle Favorite", self)
 
         menu.addAction(edit_action)
         menu.addAction(delete_action)
         menu.addSeparator()
+        menu.addAction(toggle_fav_action)
         menu.addAction(move_group_action)
         menu.addAction(check_stream_action)
         menu.addSeparator()
@@ -496,6 +610,9 @@ class ChannelTableWidget(QWidget):
             lambda: self._model.remove_rows_by_ids({ch.id for ch in selected})
         )
         duplicate_action.triggered.connect(lambda: self._duplicate_channels(selected))
+        toggle_fav_action.triggered.connect(
+            lambda: self._toggle_favorites(selected)
+        )
 
         menu.exec(global_pos)
 
@@ -518,3 +635,7 @@ class ChannelTableWidget(QWidget):
             self._model.playlist.channels.insert(insert_at, clone)
             self._model.endInsertRows()
         self._model.playlist._touch()
+
+    def _toggle_favorites(self, channels: list[Channel]) -> None:
+        for ch in channels:
+            self.toggle_favorite(ch)

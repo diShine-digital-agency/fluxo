@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from PySide6.QtCore import QTimer, Signal
 from PySide6.QtWidgets import (
+    QCheckBox,
     QComboBox,
     QHBoxLayout,
     QLineEdit,
@@ -25,6 +26,7 @@ class SearchBar(QWidget):
     search_changed = Signal(str)
     group_filter_changed = Signal(object)  # str | None
     health_filter_changed = Signal(object)  # str | None
+    favorites_filter_changed = Signal(bool)
 
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
@@ -52,6 +54,10 @@ class SearchBar(QWidget):
             self._health_filter.addItem(opt)
         self._health_filter.currentTextChanged.connect(self._on_health_changed)
 
+        # Favorites filter
+        self._favorites_check = QCheckBox("Favorites Only", self)
+        self._favorites_check.toggled.connect(self._on_favorites_toggled)
+
         # Clear button
         self._clear_btn = QPushButton("Clear Filters", self)
         self._clear_btn.clicked.connect(self.clear_filters)
@@ -62,6 +68,7 @@ class SearchBar(QWidget):
         layout.addWidget(self._search, stretch=2)
         layout.addWidget(self._group_filter, stretch=1)
         layout.addWidget(self._health_filter, stretch=1)
+        layout.addWidget(self._favorites_check)
         layout.addWidget(self._clear_btn)
 
     # -- public API --------------------------------------------------------
@@ -84,6 +91,7 @@ class SearchBar(QWidget):
         self._search.clear()
         self._group_filter.setCurrentIndex(0)
         self._health_filter.setCurrentIndex(0)
+        self._favorites_check.setChecked(False)
 
     # -- private -----------------------------------------------------------
 
@@ -98,3 +106,6 @@ class SearchBar(QWidget):
 
     def _on_health_changed(self, text: str) -> None:
         self.health_filter_changed.emit(None if text == _ALL_HEALTH else text.lower())
+
+    def _on_favorites_toggled(self, checked: bool) -> None:
+        self.favorites_filter_changed.emit(checked)
