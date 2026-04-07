@@ -66,15 +66,15 @@ class TestM3UParser:
     def test_roundtrip_metadata(self, sample_m3u_content: str):
         """Parse and re-export should preserve metadata."""
         result = self.parser.parse(sample_m3u_content)
-        # Re-export
+        # Re-export using ExportService-style logic
         lines = []
         header_parts = ["#EXTM3U"]
         for k, v in result.playlist.header_attributes.items():
             header_parts.append(f'{k}="{v}"')
         lines.append(" ".join(header_parts))
         for ch in result.playlist.channels:
+            # to_m3u_line() already includes both #EXTINF and URL lines
             lines.append(ch.to_m3u_line())
-            lines.append(ch.url)
         exported = "\n".join(lines) + "\n"
         # Re-parse the exported content
         result2 = self.parser.parse(exported)

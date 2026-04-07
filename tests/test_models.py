@@ -24,11 +24,13 @@ class TestChannel:
             group_title="News",
         )
         line = ch.to_m3u_line()
-        assert line.startswith("#EXTINF:")
-        assert 'tvg-id="CNN.us"' in line
-        assert 'tvg-name="CNN"' in line
-        assert 'group-title="News"' in line
-        assert line.endswith(",CNN")
+        # to_m3u_line returns "#EXTINF:...,CNN\nURL"
+        extinf_line = line.split("\n")[0]
+        assert extinf_line.startswith("#EXTINF:")
+        assert 'tvg-id="CNN.us"' in extinf_line
+        assert 'tvg-name="CNN"' in extinf_line
+        assert 'group-title="News"' in extinf_line
+        assert extinf_line.endswith(",CNN")
 
     def test_channel_clone(self):
         ch = Channel(name="Test", url="http://example.com/test", group_title="A")
@@ -76,7 +78,7 @@ class TestPlaylist:
         pl = Playlist(name="Test")
         ch = Channel(name="Ch1", url="http://example.com/1")
         pl.add_channel(ch)
-        pl.remove_channel(ch)
+        pl.remove_channel(ch.id)
         assert pl.channel_count == 0
 
     def test_move_channel(self):
@@ -87,7 +89,7 @@ class TestPlaylist:
         pl.add_channel(ch1)
         pl.add_channel(ch2)
         pl.add_channel(ch3)
-        pl.move_channel(2, 0)
+        pl.move_channel(ch3.id, 0)
         assert pl.channels[0].name == "Ch3"
 
     def test_get_duplicates_by_url(self):
@@ -96,8 +98,10 @@ class TestPlaylist:
         pl.add_channel(Channel(name="Ch2", url="http://example.com/same"))
         pl.add_channel(Channel(name="Ch3", url="http://example.com/other"))
         dupes = pl.get_duplicates(by="url")
+        # get_duplicates returns dict[str, list[Channel]], keyed by URL
         assert len(dupes) == 1  # One group of duplicates
-        assert len(dupes[0]) == 2
+        dup_group = list(dupes.values())[0]
+        assert len(dup_group) == 2
 
     def test_search(self):
         pl = Playlist(name="Test")

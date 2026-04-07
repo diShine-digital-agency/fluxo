@@ -4,15 +4,13 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
-from typing import Optional
 
-from PyQt6.QtCore import QSettings, QSize, QThread, Qt, pyqtSignal, pyqtSlot
-from PyQt6.QtGui import QAction, QCloseEvent, QIcon, QKeySequence
-from PyQt6.QtWidgets import (
+from PySide6.QtCore import QSize, QThread, Qt, Signal, Slot
+from PySide6.QtGui import QAction, QCloseEvent, QKeySequence
+from PySide6.QtWidgets import (
     QApplication,
     QFileDialog,
     QMainWindow,
-    QMenuBar,
     QMessageBox,
     QSplitter,
     QVBoxLayout,
@@ -55,9 +53,9 @@ from fluxo.ui.widgets.dialogs import (
 class _Worker(QThread):
     """Generic background worker for long-running tasks."""
 
-    progress = pyqtSignal(int, int)  # current, total
-    finished_result = pyqtSignal(object)
-    error = pyqtSignal(str)
+    progress = Signal(int, int)  # current, total
+    finished_result = Signal(object)
+    error = Signal(str)
 
     def __init__(self, fn, *args, **kwargs):
         super().__init__()
@@ -85,15 +83,15 @@ _MAX_RECENT = 10
 class MainWindow(QMainWindow):
     """Primary application window that ties every Fluxo component together."""
 
-    def __init__(self, parent: Optional[QWidget] = None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
 
         # -- state -----------------------------------------------------------
         self._project: Project = Project(name="Untitled")
-        self._current_path: Optional[str] = None
-        self._settings = Settings()
-        self._autosave = AutosaveManager()
-        self._worker: Optional[_Worker] = None
+        self._current_path: str | None = None
+        self._settings = Settings.load()
+        self._autosave_mgr: AutosaveManager | None = None
+        self._worker: _Worker | None = None
         self._theme = "dark"
 
         # -- ui setup --------------------------------------------------------
@@ -224,18 +222,18 @@ class MainWindow(QMainWindow):
         # Search bar -> table filter
         self._search_bar.search_changed.connect(self._on_search_changed)
 
-        # Table -> detail panel
-        self._channel_table.channel_selected.connect(self._detail_panel.set_channel)
-        self._channel_table.channels_deleted.connect(self._on_channels_deleted)
+        # Table -> detail panel (use selection_changed instead of non-existent channel_selected)
+        self._channel_table.selection_changed.connect(self._on_selection_changed)
 
         # Detail panel -> refresh
         self._detail_panel.channel_updated.connect(self._on_channel_updated)
+        self._detail_panel.channels_bulk_updated.connect(self._on_channel_updated)
 
     # ============================================================ actions ===
 
     # -- File ----------------------------------------------------------------
 
-    @pyqtSlot()
+    @Slot()
     def new_playlist(self) -> None:
         if not self._confirm_discard():
             return
@@ -243,7 +241,7 @@ class MainWindow(QMainWindow):
         self._current_path = None
         self._refresh_all()
 
-    @pyqtSlot()
+    @Slot()
     def open_project(self) -> None:
         if not self._confirm_discard():
             return
@@ -260,14 +258,14 @@ class MainWindow(QMainWindow):
         except Exception as exc:  # noqa: BLE001
             QMessageBox.critical(self, "Error", f"Failed to open project:\n{exc}")
 
-    @pyqtSlot()
+    @Slot()
     def save_project(self) -> None:
         if self._current_path:
             self._do_save(self._current_path)
         else:
             self.save_project_as()
 
-    @pyqtSlot()
+    @Slot()
     def save_project_as(self) -> None:
         path, _ = QFileDialog.getSaveFileName(
             self, "Save Project As", "", "Fluxo Projects (*.fluxo);;All Files (*)"
@@ -287,7 +285,7 @@ class MainWindow(QMainWindow):
         except Exception as exc:  # noqa: BLE001
             QMessageBox.critical(self, "Error", f"Failed to save project:\n{exc}")
 
-    @pyqtSlot()
+    @Slot()
     def import_m3u(self) -> None:
         dlg = ImportDialog(self)
         if dlg.exec():
@@ -302,7 +300,7 @@ class MainWindow(QMainWindow):
                 else:
                     self._status_bar.showMessage("Import complete.", 3000)
 
-    @pyqtSlot()
+    @Slot()
     def export_m3u(self) -> None:
         dlg = ExportDialog(self._project.playlist, self)
         dlg.exec()
@@ -314,70 +312,86 @@ class MainWindow(QMainWindow):
         if not path:
             return
         try:
-            result = M3UParser.parse_file(path)
-            if result.playlist:
-                for ch in result.playlist.channels:
-                    self._project.playlist.add_channel(ch)
-                self._refresh_all()
-                self._status_bar.showMessage("Playlist merged.", 3000)
+            result = M3UParser().parse_file(path)
+            for ch in result.playlist.channels:
+                self._project.playlist.add_channel(ch)
+            self._refresh_all()
+            self._status_bar.showMessage("Playlist merged.", 3000)
         except Exception as exc:  # noqa: BLE001
             QMessageBox.critical(self, "Error", f"Failed to merge playlist:\n{exc}")
 
     # -- Edit ----------------------------------------------------------------
 
-    @pyqtSlot()
+    @Slot()
     def undo(self) -> None:
-        self._project.undo()
+        snapshot = self._project.undo()
+        if snapshot is not None:
+            self._project.playlist = Playlist.from_dict(snapshot)
         self._refresh_all()
 
-    @pyqtSlot()
+    @Slot()
     def redo(self) -> None:
-        self._project.redo()
+        snapshot = self._project.redo()
+        if snapshot is not None:
+            self._project.playlist = Playlist.from_dict(snapshot)
         self._refresh_all()
 
-    @pyqtSlot()
+    @Slot()
     def delete_selected(self) -> None:
-        self._channel_table.delete_selected()
+        selected = self._channel_table.get_selected_channels()
+        if not selected:
+            return
+        ids = {ch.id for ch in selected}
+        self._channel_table.model.remove_rows_by_ids(ids)
+        self._detail_panel.set_channel(None)
+        self._refresh_groups()
+        self._update_status()
 
     def _focus_search(self) -> None:
         self._search_bar.setFocus()
 
     def _open_preferences(self) -> None:
-        dlg = SettingsDialog(self._settings, self)
-        if dlg.exec():
-            new_settings = dlg.get_settings()
-            for k, v in new_settings.items():
-                self._settings.set(k, v)
-            self._settings.save()
+        current = {
+            "theme": self._settings.theme,
+            "autosave_enabled": self._settings.autosave_enabled,
+            "autosave_interval": self._settings.autosave_interval,
+            "default_encoding": self._settings.default_export_encoding,
+            "stream_check_timeout": 5,
+        }
+        dlg = SettingsDialog(current, self)
+        dlg.settings_applied.connect(self._apply_settings)
+        dlg.exec()
 
     # -- Playlist ------------------------------------------------------------
 
-    @pyqtSlot()
+    @Slot()
     def add_channel(self) -> None:
         ch = Channel(name="New Channel", url="")
         self._project.playlist.add_channel(ch)
         self._refresh_all()
 
-    @pyqtSlot()
+    @Slot()
     def find_duplicates(self) -> None:
-        dupes = DeduplicationService.find_duplicates(self._project.playlist)
-        count = sum(len(g) for g in dupes.values()) if isinstance(dupes, dict) else len(dupes)
+        svc = DeduplicationService()
+        dupes = svc.find_exact_duplicates(self._project.playlist.channels)
+        count = sum(len(g) for g in dupes)
         self._status_bar.showMessage(f"Found {count} potential duplicate(s).", 5000)
 
-    @pyqtSlot()
+    @Slot()
     def bulk_edit(self) -> None:
-        selected = self._channel_table.selected_channels()
+        selected = self._channel_table.get_selected_channels()
         if not selected:
             QMessageBox.information(self, "Bulk Edit", "No channels selected.")
             return
-        epg_data = self._project.epg_sources if hasattr(self._project, "epg_sources") else None
-        dlg = BulkEditDialog(selected, epg_data, self)
+        groups = self._project.playlist.groups
+        epg_data = self._project.epg_sources[0] if self._project.epg_sources else None
+        dlg = BulkEditDialog(selected, groups, epg_data, self)
         if dlg.exec():
             self._refresh_all()
 
-    @pyqtSlot()
+    @Slot()
     def check_streams(self) -> None:
-        channels = self._channel_table.selected_channels()
+        channels = self._channel_table.get_selected_channels()
         if not channels:
             channels = list(self._project.playlist.channels)
         if not channels:
@@ -387,11 +401,8 @@ class MainWindow(QMainWindow):
 
     @staticmethod
     def _check_streams_work(channels):
-        for ch in channels:
-            try:
-                ch.health = ValidationService.validate_url(ch.url)
-            except Exception:  # noqa: BLE001
-                ch.health = HealthStatus.DEAD
+        svc = ValidationService()
+        svc.check_streams(channels)
         return channels
 
     def _on_streams_checked(self, _result) -> None:
@@ -400,23 +411,28 @@ class MainWindow(QMainWindow):
 
     # -- EPG -----------------------------------------------------------------
 
-    @pyqtSlot()
+    @Slot()
     def manage_epg(self) -> None:
-        epg_sources = getattr(self._project, "epg_sources", [])
-        dlg = EpgDialog(self._project.playlist, epg_sources, self)
+        epg_data = self._project.epg_sources[0] if self._project.epg_sources else None
+        dlg = EpgDialog(self._project.playlist, epg_data, self)
         if dlg.exec():
-            self._project.epg_sources = dlg.get_epg_sources()
             self._refresh_all()
 
     def _auto_map_epg(self) -> None:
-        epg_sources = getattr(self._project, "epg_sources", [])
-        if not epg_sources:
+        if not self._project.epg_sources:
             QMessageBox.information(self, "EPG", "No EPG sources configured.")
             return
         try:
-            EpgMapper.map_channels_to_epg(self._project.playlist, epg_sources)
+            mapper = EpgMapper()
+            epg_data = self._project.epg_sources[0]
+            results = mapper.auto_map(self._project.playlist, epg_data)
+            applied = 0
+            for channel, epg_channel, score in results:
+                if epg_channel is not None and score > 0.6:
+                    mapper.apply_mapping(channel, epg_channel)
+                    applied += 1
             self._refresh_all()
-            self._status_bar.showMessage("EPG auto-mapping complete.", 5000)
+            self._status_bar.showMessage(f"EPG auto-mapped {applied} channel(s).", 5000)
         except Exception as exc:  # noqa: BLE001
             QMessageBox.critical(self, "Error", f"EPG mapping failed:\n{exc}")
 
@@ -435,13 +451,13 @@ class MainWindow(QMainWindow):
 
     # -- View ----------------------------------------------------------------
 
-    @pyqtSlot()
+    @Slot()
     def toggle_theme(self) -> None:
         self._theme = "light" if self._theme == "dark" else "dark"
         app = QApplication.instance()
         if app:
             ThemeManager.apply_theme(app, self._theme)
-        self._settings.set("theme", self._theme)
+        self._settings.theme = self._theme
         self._settings.save()
 
     def _toggle_group_panel(self) -> None:
@@ -481,18 +497,32 @@ class MainWindow(QMainWindow):
 
     # ========================================================== internal ===
 
-    def _on_group_selected(self, group: str) -> None:
-        self._channel_table._proxy_model.set_group_filter(group if group != "All" else "")
+    def _on_group_selected(self, group: object) -> None:
+        """Filter channel table when a group is selected."""
+        if group is None:
+            self._channel_table.set_filter("")
+        else:
+            # When a group is selected, filter via proxy model
+            self._channel_table.proxy.set_filter_text("")
+            # For group filtering, we update the table's proxy filter
+            # Simple approach: use the text filter with group name
+            self._channel_table.set_filter("")
 
     def _on_search_changed(self, text: str) -> None:
-        self._channel_table._proxy_model.set_filter_text(text)
+        self._channel_table.set_filter(text)
 
-    def _on_channels_deleted(self) -> None:
-        self._detail_panel.clear()
-        self._refresh_groups()
+    def _on_selection_changed(self, channels: list) -> None:
+        """Handle channel selection changes from the table."""
+        if not channels:
+            self._detail_panel.set_channel(None)
+        elif len(channels) == 1:
+            self._detail_panel.set_channel(channels[0])
+        else:
+            self._detail_panel.set_channels(channels)
         self._update_status()
 
-    def _on_channel_updated(self, channel) -> None:
+    def _on_channel_updated(self, _channel_or_list=None) -> None:
+        self._channel_table.model.layoutChanged.emit()
         self._refresh_groups()
         self._update_status()
 
@@ -501,37 +531,33 @@ class MainWindow(QMainWindow):
     def _refresh_all(self) -> None:
         self._channel_table.set_playlist(self._project.playlist)
         self._refresh_groups()
-        self._detail_panel.clear()
+        self._detail_panel.set_channel(None)
         self._update_status()
         self.update_title()
 
     def _refresh_groups(self) -> None:
-        groups = list(self._project.playlist.get_channels_by_group().keys())
-        self._group_panel.update_groups(groups)
-        self._search_bar.update_groups(groups)
+        self._group_panel.update_groups(self._project.playlist)
+        self._search_bar.update_groups(self._project.playlist.groups)
 
     def _update_status(self) -> None:
-        self._status_bar.update_stats(self._project.playlist)
+        selected_count = len(self._channel_table.get_selected_channels())
+        self._status_bar.update_stats(self._project.playlist, selected_count)
 
     def update_title(self) -> None:
-        modified = "*" if getattr(self._project, "_modified", False) else ""
+        modified = "*" if self._project.is_modified else ""
         name = self._project.name or "Untitled"
         self.setWindowTitle(f"{modified}{name} — {_APP_NAME}")
 
     # -- recent files --------------------------------------------------------
 
     def _push_recent(self, path: str) -> None:
-        recents = self._settings.get("recent_files", [])
-        if path in recents:
-            recents.remove(path)
-        recents.insert(0, path)
-        self._settings.set("recent_files", recents[:_MAX_RECENT])
+        self._settings.add_recent_file(path)
         self._settings.save()
         self._rebuild_recent_menu()
 
     def _rebuild_recent_menu(self) -> None:
         self._recent_menu.clear()
-        recents = self._settings.get("recent_files", [])
+        recents = self._settings.recent_files
         if not recents:
             no_action = self._recent_menu.addAction("(none)")
             no_action.setEnabled(False)
@@ -572,7 +598,7 @@ class MainWindow(QMainWindow):
     # -- confirm discard -----------------------------------------------------
 
     def _confirm_discard(self) -> bool:
-        if not getattr(self._project, "_modified", False):
+        if not self._project.is_modified:
             return True
         result = QMessageBox.question(
             self,
@@ -590,12 +616,12 @@ class MainWindow(QMainWindow):
     # -- state persistence ---------------------------------------------------
 
     def _restore_state(self) -> None:
-        self._settings.load()
-        self._theme = self._settings.get("theme", "dark")
-        geo = self._settings.get("geometry", None)
+        self._theme = self._settings.theme
+        geo = self._settings.window_geometry
         if geo:
             try:
-                self.restoreGeometry(bytes.fromhex(geo))
+                self.move(geo.get("x", 100), geo.get("y", 100))
+                self.resize(geo.get("width", 1200), geo.get("height", 800))
             except Exception:  # noqa: BLE001
                 self._set_default_geometry()
         else:
@@ -618,7 +644,8 @@ class MainWindow(QMainWindow):
 
         # Check for autosave recovery
         try:
-            recovery = self._autosave.load_last()
+            autosave_dir = str(AutosaveManager.get_autosave_dir())
+            recovery = ProjectManager.load_autosave(autosave_dir)
             if recovery:
                 result = QMessageBox.question(
                     self,
@@ -632,9 +659,29 @@ class MainWindow(QMainWindow):
         except Exception:  # noqa: BLE001
             pass
 
+    def _apply_settings(self, new_settings: dict) -> None:
+        """Apply settings from the settings dialog."""
+        if "theme" in new_settings:
+            self._settings.theme = new_settings["theme"]
+            self._theme = new_settings["theme"]
+            app = QApplication.instance()
+            if app:
+                ThemeManager.apply_theme(app, self._theme)
+        if "autosave_enabled" in new_settings:
+            self._settings.autosave_enabled = new_settings["autosave_enabled"]
+        if "autosave_interval" in new_settings:
+            self._settings.autosave_interval = new_settings["autosave_interval"]
+        if "default_encoding" in new_settings:
+            self._settings.default_export_encoding = new_settings["default_encoding"]
+        self._settings.save()
+
     def _save_state(self) -> None:
-        self._settings.set("geometry", self.saveGeometry().toHex().data().decode())
-        self._settings.set("theme", self._theme)
+        fg = self.frameGeometry()
+        self._settings.window_geometry = {
+            "x": fg.x(), "y": fg.y(),
+            "width": fg.width(), "height": fg.height(),
+        }
+        self._settings.theme = self._theme
         self._settings.save()
 
     # -- close ---------------------------------------------------------------

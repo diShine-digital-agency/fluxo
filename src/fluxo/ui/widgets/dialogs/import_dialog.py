@@ -273,3 +273,7 @@ class ImportDialog(QDialog):
     def _clear_result(self) -> None:
         self._result = None
         self._button_box.button(QDialogButtonBox.StandardButton.Ok).setEnabled(False)
+
+    def get_result(self) -> ParseResult | None:
+        """Return the parsed result, or ``None`` if no import was performed."""
+        return self._result
