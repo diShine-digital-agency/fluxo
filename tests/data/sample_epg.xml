@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tv generator-info-name="test-epg">
+  <channel id="CNN.us">
+    <display-name>CNN International</display-name>
+    <display-name>CNN</display-name>
+    <icon src="http://example.com/cnn.png"/>
+  </channel>
+  <channel id="BBC1.uk">
+    <display-name>BBC One</display-name>
+    <icon src="http://example.com/bbc1.png"/>
+  </channel>
+  <channel id="ESPN.us">
+    <display-name>ESPN</display-name>
+    <icon src="http://example.com/espn.png"/>
+  </channel>
+  <programme start="20260407180000 +0000" stop="20260407190000 +0000" channel="CNN.us">
+    <title>CNN Newsroom</title>
+    <desc>Live news coverage</desc>
+    <category>News</category>
+  </programme>
+  <programme start="20260407190000 +0000" stop="20260407200000 +0000" channel="CNN.us">
+    <title>The Lead</title>
+    <desc>Analysis of top stories</desc>
+    <category>News</category>
+  </programme>
+  <programme start="20260407180000 +0000" stop="20260407190000 +0000" channel="BBC1.uk">
+    <title>EastEnders</title>
+    <desc>Drama series</desc>
+    <category>Drama</category>
+  </programme>
+  <programme start="20260407180000 +0000" stop="20260407200000 +0000" channel="ESPN.us">
+    <title>SportsCenter</title>
+    <desc>Sports news and highlights</desc>
+    <category>Sports</category>
+  </programme>
+</tv>

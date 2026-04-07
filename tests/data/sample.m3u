@@ -1,0 +1,17 @@
+#EXTM3U url-tvg="http://example.com/epg.xml"
+#EXTINF:-1 tvg-id="CNN.us" tvg-name="CNN" tvg-logo="http://example.com/cnn.png" group-title="News",CNN International
+http://example.com/streams/cnn.m3u8
+#EXTINF:-1 tvg-id="BBC1.uk" tvg-name="BBC One" tvg-logo="http://example.com/bbc1.png" group-title="Entertainment",BBC One HD
+http://example.com/streams/bbc1.m3u8
+#EXTINF:-1 tvg-id="ESPN.us" tvg-name="ESPN" tvg-logo="http://example.com/espn.png" group-title="Sports",ESPN
+http://example.com/streams/espn.m3u8
+#EXTINF:-1 tvg-id="discovery.us" tvg-name="Discovery" tvg-logo="http://example.com/disc.png" group-title="Documentary",Discovery Channel
+http://example.com/streams/discovery.m3u8
+#EXTINF:-1 tvg-id="HBO.us" tvg-name="HBO" tvg-logo="http://example.com/hbo.png" group-title="Movies",HBO
+http://example.com/streams/hbo.m3u8
+#EXTINF:-1 tvg-id="foxnews.us" tvg-name="Fox News" tvg-logo="http://example.com/fox.png" group-title="News",Fox News
+http://example.com/streams/foxnews.m3u8
+#EXTINF:-1 tvg-id="skysports.uk" tvg-name="Sky Sports" tvg-logo="http://example.com/sky.png" group-title="Sports",Sky Sports Main Event
+http://example.com/streams/skysports.m3u8
+#EXTINF:-1 tvg-id="natgeo.us" tvg-name="National Geographic" tvg-logo="http://example.com/natgeo.png" group-title="Documentary",National Geographic
+http://example.com/streams/natgeo.m3u8
