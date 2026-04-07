@@ -6,14 +6,18 @@ import json
 import logging
 from datetime import datetime
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from fluxo.models.playlist import Playlist
 from fluxo.persistence.settings import Settings
-from fluxo.server.playlist_server import PlaylistServer
 from fluxo.server.shared_link import SharedLink
 
+if TYPE_CHECKING:
+    from fluxo.models.playlist import Playlist
+    from fluxo.server.playlist_server import PlaylistServer
+
 logger = logging.getLogger(__name__)
+
+_DEFAULT_PORT = 7481
 
 
 class SharingService:
@@ -25,7 +29,9 @@ class SharingService:
 
     _LINKS_FILE = "shared_links.json"
 
-    def __init__(self, *, port: int = PlaylistServer.DEFAULT_PORT) -> None:
+    def __init__(self, *, port: int = _DEFAULT_PORT) -> None:
+        from fluxo.server.playlist_server import PlaylistServer  # lazy to avoid circular import
+
         self._server = PlaylistServer(port=port)
 
     # ------------------------------------------------------------------

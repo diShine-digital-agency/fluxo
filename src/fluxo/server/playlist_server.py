@@ -194,8 +194,6 @@ class PlaylistServer:
         groups_filter: list[str] | None = None,
     ) -> SharedLink:
         """Create a new :class:`SharedLink` and return it."""
-        from datetime import datetime  # already imported above, but re-import is safe
-
         link = SharedLink(label=label, groups_filter=groups_filter, expires_at=expires_at)
         if password:
             link.set_password(password)
