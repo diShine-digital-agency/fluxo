@@ -4,7 +4,8 @@
 
 | Version | Supported          |
 | ------- | ------------------ |
-| 0.1.x   | :white_check_mark: |
+| 1.0.x   | :white_check_mark: |
+| < 1.0   | :x:                |
 
 ## Reporting a Vulnerability
 
@@ -25,6 +26,17 @@ Fluxo is designed with security in mind:
 - **Safe defaults**: Network features are opt-in
 - **Input validation**: All imported files are parsed with strict validation
 - **No code execution**: Playlist files are treated as data, never executed
+
+### Sharing & Server Security
+
+When the optional local playlist server is enabled:
+
+- **Localhost by default**: `PlaylistServer` binds to `127.0.0.1` unless the caller explicitly opts in to `0.0.0.0` (LAN sharing)
+- **PBKDF2-HMAC-SHA256 passwords**: Shared links support password protection using 100 000 iterations of PBKDF2 with a random 16-byte salt
+- **Constant-time comparison**: Password verification uses `secrets.compare_digest` to prevent timing attacks
+- **Cryptographic tokens**: Link tokens are generated with `secrets.token_urlsafe(24)`
+- **Link expiration**: Shared links support optional expiry timestamps
+- **Revocation**: Links can be permanently deactivated at any time
 
 ## Dependencies
 

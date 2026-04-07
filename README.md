@@ -43,6 +43,81 @@ A dedicated M3U/IPTV playlist manager for power users. Parse massive M3U lists f
 - Multi-select with contextual actions
 - Desktop-first native experience (PySide6/Qt)
 
+## User Interface
+
+Fluxo uses a three-panel layout optimized for playlist editing workflows:
+
+```
+┌──────────────────────────────────────────────────────────────────────┐
+│  File  Edit  View  Tools  Help                              ☾ Dark │
+├──────────┬───────────────────────────────────┬───────────────────────┤
+│          │  🔍 Search... [Filter ▾] [★ Fav] │                       │
+│ GROUPS   ├───┬───────────┬───────┬───────────┤  CHANNEL DETAILS     │
+│          │ ★ │ Name      │ Group │ URL       │                       │
+│ ▸ Sports ├───┼───────────┼───────┼───────────┤  Name: [BBC One    ] │
+│ ▸ News   │ ★ │ BBC One   │ News  │ http://…  │  URL:  [http://…   ] │
+│ ▸ Movies │   │ CNN Intl  │ News  │ http://…  │  Group: [News  ▾   ] │
+│ ▸ Music  │ ★ │ ESPN      │Sport  │ http://…  │  Logo: [http://…   ] │
+│ ▸ Kids   │   │ HBO       │Movies │ http://…  │  EPG ID: [bbc1.uk  ] │
+│          │   │ Discovery │Docs   │ http://…  │  tvg-name: [BBC 1  ] │
+│          │   │ …         │       │           │                       │
+├──────────┴───┴───────────┴───────┴───────────┴───────────────────────┤
+│  Channels: 1,247  │  Groups: 15  │  Selected: 1  │  ● Server: Off   │
+└──────────────────────────────────────────────────────────────────────┘
+```
+
+**Panels:**
+- **Groups panel** (left) — browse and filter by channel group/category
+- **Channel table** (center) — sortable, searchable list with inline editing
+- **Detail panel** (right) — edit all metadata for the selected channel
+
+## Sharing Workflow
+
+Host your playlist on the local network so other devices can stream from it:
+
+```
+  ┌──────────┐         ┌──────────────────┐         ┌──────────┐
+  │  Fluxo   │         │  Playlist Server │         │  Client  │
+  │  Desktop │────────▸│  (localhost:7481) │◂────────│  Device  │
+  └──────────┘ create  └──────────────────┘  GET    └──────────┘
+       │        link          │                          │
+       │                      │  /playlist/<token>       │
+       │                      │◂─────────────────────────│
+       │                      │                          │
+       │                      │  ── auth? ──▸            │
+       │                      │  ◂─ password ─           │
+       │                      │                          │
+       │                      │  200 OK (M3U content)    │
+       │                      │─────────────────────────▸│
+       │                      │                          │
+```
+
+**Steps:**
+1. Open **Tools → Sharing** in Fluxo
+2. Click **Create Link** — optionally set a password, expiry, or group filter
+3. Copy the generated URL (e.g. `http://192.168.1.42:7481/playlist/abc123…`)
+4. Paste the URL into any IPTV player on your network
+
+## Keyboard Shortcuts
+
+| Shortcut | Action |
+|----------|--------|
+| `Ctrl+N` | New playlist |
+| `Ctrl+O` | Open file |
+| `Ctrl+S` | Save project |
+| `Ctrl+Shift+S` | Save as |
+| `Ctrl+E` | Export M3U |
+| `Ctrl+I` | Import M3U |
+| `Ctrl+Z` | Undo |
+| `Ctrl+Shift+Z` | Redo |
+| `Ctrl+F` | Search / find |
+| `Ctrl+H` | Find and replace |
+| `Ctrl+A` | Select all |
+| `Ctrl+D` | Duplicate detection |
+| `Ctrl+G` | Go to group |
+| `Delete` | Delete selected |
+| `F5` | Refresh / check streams |
+
 ## Installation
 
 ### From Source
@@ -90,12 +165,13 @@ python scripts/build.py
 
 ```
 src/fluxo/
-├── models/          # Typed data models (Channel, Playlist, EPG, Project)
+├── models/          # Typed data models (Channel, Playlist, EPG, Project, Collection)
 ├── parsers/         # M3U and XMLTV parsers
 ├── services/        # Business logic (validation, dedup, export, EPG mapping, sharing)
 ├── server/          # Local HTTP playlist server and shared-link management
 ├── ui/              # PySide6 widgets and dialogs
 │   └── widgets/     # Reusable UI components
+│       └── dialogs/ # Import, export, bulk edit, sharing, settings dialogs
 ├── persistence/     # Settings and autosave
 ├── app.py           # Application entry point
 └── __main__.py      # Module entry point
@@ -104,7 +180,11 @@ src/fluxo/
 ## Testing
 
 ```bash
+# Standard (macOS / Windows)
 pytest
+
+# Linux / headless CI
+QT_QPA_PLATFORM=offscreen pytest
 ```
 
 ## Documentation

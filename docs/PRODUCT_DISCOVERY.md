@@ -126,11 +126,10 @@ Fluxo is a dedicated M3U / IPTV playlist manager designed for power users who ne
 
 ### Key Libraries
 - `PySide6` — UI framework
-- `httpx` — Async HTTP client for stream checking and URL imports
+- `httpx` — HTTP client for stream checking and URL imports
 - `lxml` — Fast XML parsing for XMLTV/EPG
 - `chardet` — Character encoding detection
-- `pydantic` — Data validation and settings management
-- `pytest` — Testing framework
+- `pytest` / `pytest-qt` — Testing framework
 
 ## Recommended Architecture
 
@@ -140,13 +139,18 @@ Fluxo is a dedicated M3U / IPTV playlist manager designed for power users who ne
 │         (PySide6 Widgets + Dialogs)         │
 ├─────────────────────────────────────────────┤
 │               Service Layer                  │
-│  (Validation, Dedup, Bulk Ops, Export, EPG) │
+│  (Validation, Dedup, Bulk Ops, Export, EPG, │
+│   Sharing, Templates, Normalization)        │
+├─────────────────────────────────────────────┤
+│               Server Layer                   │
+│    (Playlist HTTP Server, Shared Links)     │
 ├─────────────────────────────────────────────┤
 │               Parser Layer                   │
 │        (M3U Parser, XMLTV Parser)           │
 ├─────────────────────────────────────────────┤
 │               Model Layer                    │
-│    (Channel, Playlist, EPG, Project)        │
+│  (Channel, Playlist, EPG, Project,          │
+│   Collection, ChannelTemplate)              │
 ├─────────────────────────────────────────────┤
 │            Persistence Layer                 │
 │    (Settings, Autosave, Project Files)      │

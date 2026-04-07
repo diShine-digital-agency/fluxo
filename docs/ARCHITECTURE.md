@@ -10,7 +10,8 @@ Fluxo follows a clean layered architecture with clear separation of concerns.
 │         (PySide6 Widgets + Dialogs)         │
 ├─────────────────────────────────────────────┤
 │               Service Layer                  │
-│  (Validation, Dedup, Bulk Ops, Export, EPG) │
+│  (Validation, Dedup, Bulk Ops, Export, EPG, │
+│   Sharing, Templates, Normalization)        │
 ├─────────────────────────────────────────────┤
 │               Server Layer                   │
 │    (Playlist HTTP Server, Shared Links)     │
@@ -19,21 +20,75 @@ Fluxo follows a clean layered architecture with clear separation of concerns.
 │        (M3U Parser, XMLTV Parser)           │
 ├─────────────────────────────────────────────┤
 │               Model Layer                    │
-│    (Channel, Playlist, EPG, Project)        │
+│  (Channel, Playlist, EPG, Project,          │
+│   Collection, ChannelTemplate)              │
 ├─────────────────────────────────────────────┤
 │            Persistence Layer                 │
 │    (Settings, Autosave, Project Files)      │
 └─────────────────────────────────────────────┘
 ```
 
+## Data Flow: Import → Edit → Export
+
+```
+  ┌────────────┐      ┌────────────┐      ┌─────────────┐
+  │  M3U File  │─────▸│  M3UParser │─────▸│  Playlist   │
+  │  or URL    │      │            │      │  (model)    │
+  └────────────┘      └────────────┘      └──────┬──────┘
+                                                 │
+                      ┌────────────┐             │
+                      │  XMLTV     │─────▸ EpgData ──▸ EpgMapper
+                      │  Parser    │             │
+                      └────────────┘             │
+                                                 ▼
+                                          ┌─────────────┐
+                                          │   Project   │
+                                          │ (undo stack │
+                                          │  + metadata)│
+                                          └──────┬──────┘
+                                                 │
+              ┌──────────────────────────────────┼──────────────────┐
+              ▼                                  ▼                  ▼
+     ┌─────────────────┐               ┌──────────────┐   ┌──────────────┐
+     │ ExportService   │               │ ProjectMgr   │   │ SharingService│
+     │ (clean M3U out) │               │ (.fluxo save)│   │ (HTTP share) │
+     └─────────────────┘               └──────────────┘   └──────────────┘
+```
+
+## Sharing: Request Lifecycle
+
+```
+  Client (IPTV Player)                     PlaylistServer
+         │                                       │
+         │  GET /playlist/<token>?password=...    │
+         │──────────────────────────────────────▸│
+         │                                       │
+         │                    ┌──────────────────┤
+         │                    │ 1. Lookup token  │
+         │                    │ 2. Check active  │
+         │                    │ 3. Check expiry  │
+         │                    │ 4. Verify pwd    │
+         │                    │ 5. Filter groups │
+         │                    │ 6. Export M3U    │
+         │                    └──────────────────┤
+         │                                       │
+         │  200 OK  (audio/x-mpegurl)            │
+         │◂──────────────────────────────────────│
+         │  #EXTM3U                              │
+         │  #EXTINF:-1, Channel One              │
+         │  http://...                           │
+```
+
 ## Layers
 
 ### Model Layer (`src/fluxo/models/`)
 - Typed dataclasses for all domain entities
-- `Channel` — represents a single IPTV channel entry with all metadata
-- `Playlist` — collection of channels with header metadata
+- `Channel` — a single IPTV channel with all M3U metadata fields
+- `Playlist` — ordered collection of channels with header metadata
 - `EpgData` / `EpgChannel` / `EpgProgramme` — XMLTV EPG structures
 - `Project` — wraps a playlist with undo history, EPG links, and project metadata
+- `Collection` — user-defined grouping of channels (independent of M3U groups)
+- `ChannelTemplate` — reusable metadata preset for applying to channels
 
 ### Parser Layer (`src/fluxo/parsers/`)
 - `M3UParser` — robust M3U/M3U8 parser handling edge cases (bad encoding, malformed entries, huge files)
@@ -44,27 +99,46 @@ Fluxo follows a clean layered architecture with clear separation of concerns.
 - `DeduplicationService` — exact and fuzzy duplicate detection
 - `BulkOperationService` — mass rename, move, replace, logo/EPG assignment
 - `ExportService` — clean M3U/M3U8 export with metadata preservation
-- `ProjectManager` — save/load project files, autosave
+- `ProjectManager` — save/load project files, autosave integration
 - `EpgMapper` — intelligent EPG-to-channel mapping with fuzzy matching
 - `TemplateService` — channel templates/profiles for reusable metadata presets
 - `NormalizationService` — metadata cleanup rules (group names, channel names, URLs)
 - `SharingService` — manages hosted playlist links and the local server lifecycle
 
 ### Server Layer (`src/fluxo/server/`)
-- `PlaylistServer` — lightweight local HTTP server serving M3U playlists via shareable link tokens (stdlib `http.server`, daemon thread)
+- `PlaylistServer` — lightweight local HTTP server serving M3U playlists via shareable link tokens (stdlib `http.server`, daemon thread, default port 7481)
 - `SharedLink` — data model for shareable links with PBKDF2-HMAC-SHA256 password protection, expiry, access tracking, and group filtering
 
 ### UI Layer (`src/fluxo/ui/`)
+
+```
+┌──────────────────────────────────────────────────────────┐
+│ MainWindow                                               │
+│ ┌──────────┬──────────────────────────┬─────────────────┐│
+│ │GroupPanel │  ChannelTableWidget      │  DetailPanel    ││
+│ │          │  (model/view + proxy)    │                 ││
+│ │          │  ┌────────────────────┐  │                 ││
+│ │          │  │  SearchBar         │  │                 ││
+│ │          │  ├────────────────────┤  │                 ││
+│ │          │  │  QTableView        │  │                 ││
+│ │          │  │  (ChannelModel)    │  │                 ││
+│ │          │  └────────────────────┘  │                 ││
+│ └──────────┴──────────────────────────┴─────────────────┘│
+│ StatusBar                                                │
+└──────────────────────────────────────────────────────────┘
+```
+
 - `MainWindow` — primary application window with menu bar and status bar
-- `ChannelTableWidget` — virtualized table for channel list display
+- `ChannelTableWidget` — virtualized table for channel list display with inline editing
 - `GroupPanel` — sidebar for group/category navigation
 - `DetailPanel` — sidebar for editing selected channel details
-- `SearchBar` — search and filter controls
-- Various dialogs for import, export, bulk edit, EPG management, settings
+- `SearchBar` — search and filter controls with favorites toggle
+- `StatusBar` — channel count, group count, server status
+- **Dialogs:** Import, Export, Bulk Edit, EPG, Settings, Sharing
 
 ### Persistence Layer (`src/fluxo/persistence/`)
-- `Settings` — application preferences (theme, recent files, etc.)
-- `Autosave` — periodic project state snapshots for crash recovery
+- `Settings` — application preferences (theme, recent files, column widths, etc.)
+- `AutosaveManager` — periodic project state snapshots for crash recovery
 
 ## Key Design Decisions
 
@@ -72,4 +146,6 @@ Fluxo follows a clean layered architecture with clear separation of concerns.
 2. **Background Workers** — Parsing, stream checking, and import use QThread workers to keep the UI responsive
 3. **Signal/Slot** — Loose coupling between components via Qt signals
 4. **Dataclasses** — Clean, typed domain models without ORM overhead
-5. **JSON project files** — Human-readable, versionable project format
+5. **JSON project files** — Human-readable, versionable project format (.fluxo)
+6. **Lazy imports** — `SharingService` uses a lazy import for `PlaylistServer` to avoid circular dependencies via `services/__init__.py`
+7. **Localhost by default** — `PlaylistServer` binds to `127.0.0.1`; `SharingService` opts in to `0.0.0.0` for LAN sharing
