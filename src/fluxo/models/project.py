@@ -6,6 +6,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Any
 
+from fluxo.models.collection import Collection
 from fluxo.models.epg import EpgData
 from fluxo.models.playlist import Playlist
 
@@ -38,6 +39,7 @@ class Project:
     file_path: str | None = None
     playlist: Playlist = field(default_factory=Playlist)
     epg_sources: list[EpgData] = field(default_factory=list)
+    collections: list[Collection] = field(default_factory=list)
 
     undo_stack: list[_UndoEntry] = field(default_factory=list)
     redo_stack: list[_UndoEntry] = field(default_factory=list)
@@ -114,6 +116,7 @@ class Project:
             "file_path": self.file_path,
             "playlist": self.playlist.to_dict(),
             "epg_sources": [epg.to_dict() for epg in self.epg_sources],
+            "collections": [c.to_dict() for c in self.collections],
             "undo_stack": [e.to_dict() for e in self.undo_stack],
             "redo_stack": [e.to_dict() for e in self.redo_stack],
             "is_modified": self.is_modified,
@@ -130,6 +133,7 @@ class Project:
             file_path=data.get("file_path"),
             playlist=Playlist.from_dict(data.get("playlist", {})),
             epg_sources=[EpgData.from_dict(e) for e in data.get("epg_sources", [])],
+            collections=[Collection.from_dict(c) for c in data.get("collections", [])],
             undo_stack=[_UndoEntry.from_dict(e) for e in data.get("undo_stack", [])],
             redo_stack=[_UndoEntry.from_dict(e) for e in data.get("redo_stack", [])],
             is_modified=data.get("is_modified", False),
