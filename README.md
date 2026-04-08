@@ -7,7 +7,7 @@
 Parse massive M3U lists from file or URL to visually edit channel orders, rename streams, fix broken EPG/XMLTV links, and assign custom logos. Save your optimized playlist locally or host it as a dynamic link for immediate streaming.
 
 <p align="center">
-  <img src="docs/images/fluxo_scene_04_stream_health_management.webp" alt="Fluxo stream health" width="49%">
+  <img src="docs/images/fluxo_scene_03_grouped_filter_workflow.webp" alt="Fluxo group filter" width="49%">
   <img src="docs/images/fluxo_scene_05_host_share_dialog.webp" alt="Fluxo host share dialog" width="49%">
 </p>
 
