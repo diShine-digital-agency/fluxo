@@ -1,13 +1,24 @@
-# Fluxo
+# Fluxo, a dedicated M3U/IPTV playlist manager for power users
 
-**A dedicated M3U/IPTV playlist manager for power users.**
+<p align="center">
+  <img src="docs/images/fluxo_scene_02_selected_channel_detail.webp" alt="Fluxo select channel" width="65%">
+</p>
 
 Parse massive M3U lists from file or URL to visually edit channel orders, rename streams, fix broken EPG/XMLTV links, and assign custom logos. Save your optimized playlist locally or host it as a dynamic link for immediate streaming.
+
+<p align="center">
+  <img src="docs/images/fluxo_scene_04_stream_health_management.webp" alt="Fluxo stream health" width="49%">
+  <img src="docs/images/fluxo_scene_05_host_share_dialog.webp" alt="Fluxo host share dialog" width="49%">
+</p>
 
 Built by [diShine Digital Agency](https://dishine.it).
 
 > **Fluxo is a neutral playlist-management tool for lawful personal and organizational use.**
 > It does not bundle, provide, or facilitate access to copyrighted streams or pirate content.
+
+<p align="center">
+  <img src="docs/images/fluxo_scene_01_main_editor_overview.webp" alt="Fluxo Main Editor" width="65%">
+</p>
 
 ---
 
