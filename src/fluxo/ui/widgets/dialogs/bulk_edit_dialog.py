@@ -228,9 +228,7 @@ class BulkEditDialog(QDialog):
         if self._epg_data is None:
             return
 
-        count = BulkOperationService.bulk_assign_epg_from_data(
-            self._channels, self._epg_data
-        )
+        count = BulkOperationService.bulk_assign_epg_from_data(self._channels, self._epg_data)
         self._assign_info.setText(f"Auto-assigned EPG IDs to {count} channel(s).")
 
     def _on_apply(self) -> None:

@@ -1,4 +1,5 @@
 """Tests for data models."""
+
 from __future__ import annotations
 
 from fluxo.models.channel import Channel, HealthStatus
@@ -128,9 +129,7 @@ class TestProject:
 
     def test_undo_redo(self):
         proj = Project(name="Test")
-        proj.playlist.add_channel(
-            Channel(name="Ch1", url="http://example.com/1")
-        )
+        proj.playlist.add_channel(Channel(name="Ch1", url="http://example.com/1"))
         # Push undo state
         snapshot = proj.playlist.to_dict()
         proj.push_undo("add channel", snapshot)
@@ -141,9 +140,7 @@ class TestProject:
 
     def test_serialization(self):
         proj = Project(name="Test")
-        proj.playlist.add_channel(
-            Channel(name="Ch1", url="http://example.com/1", group_title="G")
-        )
+        proj.playlist.add_channel(Channel(name="Ch1", url="http://example.com/1", group_title="G"))
         data = proj.to_dict()
         restored = Project.from_dict(data)
         assert restored.name == proj.name

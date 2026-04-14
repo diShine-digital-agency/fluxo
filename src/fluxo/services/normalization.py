@@ -55,7 +55,7 @@ class NormalizationService:
             original = ch.url
             url = ch.url.strip()
             if url.startswith("http://"):
-                url = "https://" + url[len("http://"):]
+                url = "https://" + url[len("http://") :]
             if url != original:
                 ch.url = url
                 count += 1

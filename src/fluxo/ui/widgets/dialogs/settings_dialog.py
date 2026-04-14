@@ -126,21 +126,15 @@ class SettingsDialog(QDialog):
 
     def _load_current(self) -> None:
         theme = self._settings.get("theme", "dark")
-        idx = next(
-            (i for i, t in enumerate(_THEMES) if t.lower() == theme.lower()), 0
-        )
+        idx = next((i for i, t in enumerate(_THEMES) if t.lower() == theme.lower()), 0)
         self._theme_combo.setCurrentIndex(idx)
 
         self._autosave_check.setChecked(self._settings.get("autosave_enabled", True))
-        self._autosave_interval_spin.setValue(
-            self._settings.get("autosave_interval", 5)
-        )
+        self._autosave_interval_spin.setValue(self._settings.get("autosave_interval", 5))
         self._autosave_interval_spin.setEnabled(self._autosave_check.isChecked())
 
         encoding = self._settings.get("default_encoding", "UTF-8")
-        enc_idx = next(
-            (i for i, e in enumerate(_ENCODINGS) if e == encoding), 0
-        )
+        enc_idx = next((i for i, e in enumerate(_ENCODINGS) if e == encoding), 0)
         self._encoding_combo.setCurrentIndex(enc_idx)
 
         self._timeout_spin.setValue(self._settings.get("stream_check_timeout", 5))

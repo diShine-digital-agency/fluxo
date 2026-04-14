@@ -1,4 +1,5 @@
 """Tests for M3U parser."""
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -79,21 +80,19 @@ class TestM3UParser:
         # Re-parse the exported content
         result2 = self.parser.parse(exported)
         assert result2.playlist.channel_count == result.playlist.channel_count
-        for orig, reparsed in zip(
-            result.playlist.channels, result2.playlist.channels
-        ):
+        for orig, reparsed in zip(result.playlist.channels, result2.playlist.channels):
             assert orig.name == reparsed.name
             assert orig.tvg_id == reparsed.tvg_id
             assert orig.group_title == reparsed.group_title
             assert orig.url == reparsed.url
 
     def test_parse_windows_line_endings(self):
-        content = "#EXTM3U\r\n#EXTINF:-1 group-title=\"Test\",Ch1\r\nhttp://example.com/1\r\n"
+        content = '#EXTM3U\r\n#EXTINF:-1 group-title="Test",Ch1\r\nhttp://example.com/1\r\n'
         result = self.parser.parse(content)
         assert result.playlist.channel_count == 1
 
     def test_parse_channel_without_comma(self):
-        content = "#EXTM3U\n#EXTINF:-1 group-title=\"Test\"\nhttp://example.com/1\n"
+        content = '#EXTM3U\n#EXTINF:-1 group-title="Test"\nhttp://example.com/1\n'
         result = self.parser.parse(content)
         # Should still parse the channel
         assert result.playlist.channel_count >= 0

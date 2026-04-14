@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.1.0] — 2026-04-14
+
+### Added
+- **Playlist statistics service** — channel/group counts, health summary, EPG and logo coverage, duplicate URL count, favorites count, and a 0–100 health score (`StatisticsService`, `PlaylistStats`)
+- **Playlist merge** — combine multiple playlists into one with optional URL-based deduplication and EPG URL consolidation (`ExportService.merge_playlists()`)
+- Python 3.13 support (CI matrix and `pyproject.toml` classifier)
+- Ruff linting and format checks enforced in CI (`lint` job)
+- 22 new tests covering statistics, health score, and merge functionality (140 total)
+
+### Changed
+- Auto-formatted entire codebase with Ruff for consistent style
+
+---
+
 ## [1.0.0] — 2026-04-07
 
 ### Changed
@@ -72,6 +86,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+[1.1.0]: https://github.com/diShine-digital-agency/fluxo/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/diShine-digital-agency/fluxo/compare/v0.4.0...v1.0.0
 [0.4.0]: https://github.com/diShine-digital-agency/fluxo/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/diShine-digital-agency/fluxo/compare/v0.2.0...v0.3.0

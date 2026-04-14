@@ -103,8 +103,10 @@ class Settings:
 
     def save(self) -> None:
         """Write settings to the config file."""
-        config_path = Path(self._config_path) if self._config_path else (
-            self.get_config_dir() / "settings.json"
+        config_path = (
+            Path(self._config_path)
+            if self._config_path
+            else (self.get_config_dir() / "settings.json")
         )
         config_path.parent.mkdir(parents=True, exist_ok=True)
 

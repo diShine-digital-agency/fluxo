@@ -39,9 +39,9 @@ class _MapStatus(Enum):
 
 
 _STATUS_COLORS: dict[_MapStatus, QColor] = {
-    _MapStatus.MAPPED: QColor("#a6e3a1"),    # green
+    _MapStatus.MAPPED: QColor("#a6e3a1"),  # green
     _MapStatus.UNMAPPED: QColor("#f9e2af"),  # yellow
-    _MapStatus.MISSING: QColor("#f38ba8"),   # red
+    _MapStatus.MISSING: QColor("#f38ba8"),  # red
 }
 
 
@@ -135,15 +135,9 @@ class EpgDialog(QDialog):
 
         self._mapping_table = QTableWidget()
         self._mapping_table.setColumnCount(4)
-        self._mapping_table.setHorizontalHeaderLabels(
-            ["Channel", "TVG-ID", "EPG Match", "Status"]
-        )
-        self._mapping_table.setSelectionBehavior(
-            QAbstractItemView.SelectionBehavior.SelectRows
-        )
-        self._mapping_table.setEditTriggers(
-            QAbstractItemView.EditTrigger.NoEditTriggers
-        )
+        self._mapping_table.setHorizontalHeaderLabels(["Channel", "TVG-ID", "EPG Match", "Status"])
+        self._mapping_table.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
+        self._mapping_table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
         header = self._mapping_table.horizontalHeader()
         if header is not None:
             header.setStretchLastSection(True)
@@ -256,10 +250,7 @@ class EpgDialog(QDialog):
     # ------------------------------------------------------------------
 
     def _current_urls(self) -> list[str]:
-        return [
-            self._source_list.item(i).text()
-            for i in range(self._source_list.count())
-        ]
+        return [self._source_list.item(i).text() for i in range(self._source_list.count())]
 
     def _refresh_mapping_table(self) -> None:
         channels = self._playlist.channels
@@ -286,9 +277,7 @@ class EpgDialog(QDialog):
             epg_match = ""
             if ch.tvg_id and ch.tvg_id in self._epg_data.channels:
                 epg_ch = self._epg_data.channels[ch.tvg_id]
-                epg_match = (
-                    epg_ch.display_names[0] if epg_ch.display_names else epg_ch.id
-                )
+                epg_match = epg_ch.display_names[0] if epg_ch.display_names else epg_ch.id
             match_item = QTableWidgetItem(epg_match)
 
             status_item = QTableWidgetItem(status.value.capitalize())

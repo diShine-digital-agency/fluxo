@@ -80,7 +80,7 @@ class M3UParser:
 
         # --- Parse optional #EXTM3U header ---
         if total > 0 and lines[0].upper().startswith("#EXTM3U"):
-            header_attrs = _parse_attributes(lines[0][len("#EXTM3U"):])
+            header_attrs = _parse_attributes(lines[0][len("#EXTM3U") :])
             for attr_name in _EPG_URL_ATTRS:
                 url = header_attrs.get(attr_name, "").strip()
                 if url:
@@ -104,9 +104,7 @@ class M3UParser:
             if line.upper().startswith("#EXTINF:"):
                 # If there was a previous unmatched #EXTINF, warn and discard
                 if pending_extinf is not None:
-                    warnings.append(
-                        f"Line {line_num_extinf}: #EXTINF without a URL, skipping."
-                    )
+                    warnings.append(f"Line {line_num_extinf}: #EXTINF without a URL, skipping.")
                 pending_extinf = line
                 pending_extra = []
                 line_num_extinf = idx  # 1-based
@@ -199,13 +197,11 @@ class M3UParser:
         # Display name — text after the last comma
         comma_pos = extinf_line.rfind(",")
         if comma_pos != -1:
-            display_name = extinf_line[comma_pos + 1:].strip()
+            display_name = extinf_line[comma_pos + 1 :].strip()
         else:
             # No comma — use the remainder after attributes as name
             display_name = ""
-            warnings.append(
-                f"Line {line_num}: No comma separator in #EXTINF line."
-            )
+            warnings.append(f"Line {line_num}: No comma separator in #EXTINF line.")
 
         # Split attributes into known fields and extras
         known_kwargs: dict[str, str] = {}
@@ -225,7 +221,7 @@ class M3UParser:
                 tag_body = extra_line[1:]  # strip leading #
                 colon_pos = tag_body.index(":")
                 tag_key = tag_body[:colon_pos].strip()
-                tag_val = tag_body[colon_pos + 1:].strip()
+                tag_val = tag_body[colon_pos + 1 :].strip()
                 extra_attrs[tag_key] = tag_val
             else:
                 extra_attrs[extra_line] = ""

@@ -70,3 +70,43 @@ class ExportService:
             epg_urls=playlist.epg_urls,
         )
         return ExportService.export_m3u(temp)
+
+    @staticmethod
+    def merge_playlists(
+        playlists: list[Playlist],
+        *,
+        deduplicate: bool = True,
+        name: str = "Merged Playlist",
+    ) -> Playlist:
+        """Merge multiple playlists into a single :class:`Playlist`.
+
+        *deduplicate*: when ``True`` (default) only the first occurrence of
+        each URL is kept.
+        *name*: name for the resulting playlist.
+        """
+        all_channels = []
+        all_epg_urls: list[str] = []
+        merged_attrs: dict[str, str] = {}
+
+        for pl in playlists:
+            all_channels.extend(ch.clone() for ch in pl.channels)
+            for url in pl.epg_urls:
+                if url not in all_epg_urls:
+                    all_epg_urls.append(url)
+            merged_attrs.update(pl.header_attributes)
+
+        if deduplicate:
+            seen: set[str] = set()
+            unique = []
+            for ch in all_channels:
+                if ch.url not in seen:
+                    seen.add(ch.url)
+                    unique.append(ch)
+            all_channels = unique
+
+        return Playlist(
+            name=name,
+            channels=all_channels,
+            epg_urls=all_epg_urls,
+            header_attributes=merged_attrs,
+        )

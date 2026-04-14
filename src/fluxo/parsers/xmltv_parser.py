@@ -96,19 +96,13 @@ class XmltvParser:
             return None
 
         display_names = [
-            dn.text.strip()
-            for dn in elem.findall("display-name")
-            if dn.text and dn.text.strip()
+            dn.text.strip() for dn in elem.findall("display-name") if dn.text and dn.text.strip()
         ]
 
         icon_elem = elem.find("icon")
         icon_url = icon_elem.get("src", "") if icon_elem is not None else ""
 
-        urls = [
-            u.text.strip()
-            for u in elem.findall("url")
-            if u.text and u.text.strip()
-        ]
+        urls = [u.text.strip() for u in elem.findall("url") if u.text and u.text.strip()]
 
         return EpgChannel(
             id=channel_id,
@@ -165,6 +159,7 @@ class XmltvParser:
 def _bytes_source(data: bytes):
     """Wrap bytes into a file-like object for lxml iterparse."""
     from io import BytesIO
+
     return BytesIO(data)
 
 

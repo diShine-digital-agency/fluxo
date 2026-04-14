@@ -1,4 +1,5 @@
 """Tests for validation and deduplication services."""
+
 from __future__ import annotations
 
 from fluxo.models.channel import Channel

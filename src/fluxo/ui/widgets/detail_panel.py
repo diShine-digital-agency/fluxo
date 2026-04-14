@@ -54,9 +54,7 @@ class DetailPanel(QWidget):
         self._scroll.setWidgetResizable(True)
         self._form_widget = QWidget()
         self._form_layout = QFormLayout(self._form_widget)
-        self._form_layout.setFieldGrowthPolicy(
-            QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow
-        )
+        self._form_layout.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
         self._scroll.setWidget(self._form_widget)
 
         # --- form fields ---

@@ -49,6 +49,7 @@ from fluxo.ui.widgets.dialogs import (
 # Background worker
 # ---------------------------------------------------------------------------
 
+
 class _Worker(QThread):
     """Generic background worker for long-running tasks."""
 
@@ -146,14 +147,20 @@ class MainWindow(QMainWindow):
         file_menu.addSeparator()
         self._add_action(file_menu, "&Save Project", self.save_project, _std.Save)
         self._add_action(
-            file_menu, "Save &As…", self.save_project_as, QKeySequence("Ctrl+Shift+S"),
+            file_menu,
+            "Save &As…",
+            self.save_project_as,
+            QKeySequence("Ctrl+Shift+S"),
         )
         file_menu.addSeparator()
         self._add_action(file_menu, "&Import M3U…", self.import_m3u, QKeySequence("Ctrl+I"))
         self._add_action(file_menu, "&Export M3U…", self.export_m3u, QKeySequence("Ctrl+E"))
         file_menu.addSeparator()
         self._add_action(
-            file_menu, "&Host && Share…", self._open_sharing, QKeySequence("Ctrl+H"),
+            file_menu,
+            "&Host && Share…",
+            self._open_sharing,
+            QKeySequence("Ctrl+H"),
         )
         file_menu.addSeparator()
         self._recent_menu = file_menu.addMenu("Recent Files")
@@ -164,22 +171,36 @@ class MainWindow(QMainWindow):
         # -- Edit ------------------------------------------------------------
         edit_menu = mb.addMenu("&Edit")
         self._undo_action = self._add_action(
-            edit_menu, "&Undo", self.undo, _std.Undo,
+            edit_menu,
+            "&Undo",
+            self.undo,
+            _std.Undo,
         )
         self._redo_action = self._add_action(
-            edit_menu, "&Redo", self.redo, QKeySequence("Ctrl+Shift+Z"),
+            edit_menu,
+            "&Redo",
+            self.redo,
+            QKeySequence("Ctrl+Shift+Z"),
         )
         edit_menu.addSeparator()
         self._add_action(
-            edit_menu, "Select &All", self._channel_table.select_all, _std.SelectAll,
+            edit_menu,
+            "Select &All",
+            self._channel_table.select_all,
+            _std.SelectAll,
         )
         self._add_action(
-            edit_menu, "&Delete Selected", self.delete_selected,
+            edit_menu,
+            "&Delete Selected",
+            self.delete_selected,
             QKeySequence(Qt.Key.Key_Delete),
         )
         edit_menu.addSeparator()
         self._add_action(
-            edit_menu, "&Find && Replace", self._focus_search, _std.Find,
+            edit_menu,
+            "&Find && Replace",
+            self._focus_search,
+            _std.Find,
         )
         self._add_action(edit_menu, "&Preferences…", self._open_preferences)
 
@@ -187,12 +208,16 @@ class MainWindow(QMainWindow):
         playlist_menu = mb.addMenu("&Playlist")
         self._add_action(playlist_menu, "&Add Channel", self.add_channel)
         self._add_action(
-            playlist_menu, "&Duplicate Detection", self.find_duplicates,
+            playlist_menu,
+            "&Duplicate Detection",
+            self.find_duplicates,
             QKeySequence("Ctrl+D"),
         )
         self._add_action(playlist_menu, "&Bulk Edit…", self.bulk_edit)
         self._add_action(
-            playlist_menu, "&Check Stream Health", self.check_streams,
+            playlist_menu,
+            "&Check Stream Health",
+            self.check_streams,
             QKeySequence(Qt.Key.Key_F5),
         )
         self._add_action(playlist_menu, "&Merge Playlist…", self._merge_playlist)
@@ -207,10 +232,14 @@ class MainWindow(QMainWindow):
         view_menu = mb.addMenu("&View")
         self._add_action(view_menu, "Toggle &Dark/Light Theme", self.toggle_theme)
         self._toggle_group_action = self._add_action(
-            view_menu, "Toggle &Group Panel", self._toggle_group_panel,
+            view_menu,
+            "Toggle &Group Panel",
+            self._toggle_group_panel,
         )
         self._toggle_detail_action = self._add_action(
-            view_menu, "Toggle D&etail Panel", self._toggle_detail_panel,
+            view_menu,
+            "Toggle D&etail Panel",
+            self._toggle_detail_panel,
         )
 
         # -- Help ------------------------------------------------------------
@@ -229,21 +258,23 @@ class MainWindow(QMainWindow):
     # ------------------------------------------------------------ shortcuts
     def _setup_shortcuts(self) -> None:
         self._shortcut_mgr = ShortcutManager(self)
-        self._shortcut_mgr.register_defaults({
-            "new_playlist": self.new_playlist,
-            "open_file": self.open_project,
-            "save_project": self.save_project,
-            "save_as": self.save_project_as,
-            "export_m3u": self.export_m3u,
-            "import_m3u": self.import_m3u,
-            "undo": self.undo,
-            "redo": self.redo,
-            "search": self._focus_search,
-            "select_all": self._channel_table.select_all,
-            "duplicate_detection": self.find_duplicates,
-            "delete_selected": self.delete_selected,
-            "refresh_streams": self.check_streams,
-        })
+        self._shortcut_mgr.register_defaults(
+            {
+                "new_playlist": self.new_playlist,
+                "open_file": self.open_project,
+                "save_project": self.save_project,
+                "save_as": self.save_project_as,
+                "export_m3u": self.export_m3u,
+                "import_m3u": self.import_m3u,
+                "undo": self.undo,
+                "redo": self.redo,
+                "search": self._focus_search,
+                "select_all": self._channel_table.select_all,
+                "duplicate_detection": self.find_duplicates,
+                "delete_selected": self.delete_selected,
+                "refresh_streams": self.check_streams,
+            }
+        )
 
     # -------------------------------------------------------------- signals
     def _connect_signals(self) -> None:
@@ -478,13 +509,11 @@ class MainWindow(QMainWindow):
             QMessageBox.critical(self, "Error", f"EPG mapping failed:\n{exc}")
 
     def _validate_epg(self) -> None:
-        unmapped = [
-            ch for ch in self._project.playlist.channels
-            if not getattr(ch, "tvg_id", None)
-        ]
+        unmapped = [ch for ch in self._project.playlist.channels if not getattr(ch, "tvg_id", None)]
         if unmapped:
             QMessageBox.information(
-                self, "EPG Validation",
+                self,
+                "EPG Validation",
                 f"{len(unmapped)} channel(s) have no EPG mapping.",
             )
         else:
@@ -682,9 +711,7 @@ class MainWindow(QMainWindow):
         self._worker = _Worker(fn, *args)
         if callback:
             self._worker.finished_result.connect(callback)
-        self._worker.error.connect(
-            lambda msg: QMessageBox.critical(self, "Error", msg)
-        )
+        self._worker.error.connect(lambda msg: QMessageBox.critical(self, "Error", msg))
         self._worker.finished.connect(lambda: self._status_bar.showMessage("Ready."))
         self._worker.start()
 
@@ -777,8 +804,10 @@ class MainWindow(QMainWindow):
     def _save_state(self) -> None:
         fg = self.frameGeometry()
         self._settings.window_geometry = {
-            "x": fg.x(), "y": fg.y(),
-            "width": fg.width(), "height": fg.height(),
+            "x": fg.x(),
+            "y": fg.y(),
+            "width": fg.width(),
+            "height": fg.height(),
         }
         self._settings.theme = self._theme
         self._settings.save()

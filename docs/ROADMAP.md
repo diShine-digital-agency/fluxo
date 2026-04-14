@@ -34,10 +34,18 @@
 - [x] Link expiration and access tracking
 - [x] Group-filtered sharing
 
-## v1.0.0 — Production Release (Current)
+## v1.0.0 — Production Release (Complete)
 - [x] Full documentation
 - [x] Comprehensive test suite (118 tests)
 - [x] CI/CD with GitHub Actions
+
+## v1.1.0 — Analytics & Merge (Current)
+- [x] Playlist statistics service (channel/group counts, health score, EPG/logo coverage)
+- [x] Playlist merge with URL-based deduplication
+- [x] Python 3.13 support
+- [x] Ruff linting enforced in CI
+- [x] Codebase auto-formatted with Ruff
+- [x] Expanded test suite (140 tests)
 
 ## Future
 - [ ] Signed macOS .app bundle

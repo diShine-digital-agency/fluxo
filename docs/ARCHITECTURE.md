@@ -11,7 +11,8 @@ Fluxo follows a clean layered architecture with clear separation of concerns.
 ├─────────────────────────────────────────────┤
 │               Service Layer                  │
 │  (Validation, Dedup, Bulk Ops, Export, EPG, │
-│   Sharing, Templates, Normalization)        │
+│   Sharing, Templates, Normalization,       │
+│   Statistics)                              │
 ├─────────────────────────────────────────────┤
 │               Server Layer                   │
 │    (Playlist HTTP Server, Shared Links)     │
@@ -98,12 +99,13 @@ Fluxo follows a clean layered architecture with clear separation of concerns.
 - `ValidationService` — stream health checking, EPG mapping validation
 - `DeduplicationService` — exact and fuzzy duplicate detection
 - `BulkOperationService` — mass rename, move, replace, logo/EPG assignment
-- `ExportService` — clean M3U/M3U8 export with metadata preservation
+- `ExportService` — clean M3U/M3U8 export with metadata preservation, playlist merging with deduplication
 - `ProjectManager` — save/load project files, autosave integration
 - `EpgMapper` — intelligent EPG-to-channel mapping with fuzzy matching
 - `TemplateService` — channel templates/profiles for reusable metadata presets
 - `NormalizationService` — metadata cleanup rules (group names, channel names, URLs)
 - `SharingService` — manages hosted playlist links and the local server lifecycle
+- `StatisticsService` — playlist analytics (channel/group counts, health score, EPG/logo coverage, duplicate detection, favorites)
 
 ### Server Layer (`src/fluxo/server/`)
 - `PlaylistServer` — lightweight local HTTP server serving M3U playlists via shareable link tokens (stdlib `http.server`, daemon thread, default port 7481)
