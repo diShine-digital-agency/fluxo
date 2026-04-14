@@ -204,11 +204,13 @@ class TestPlaylistMerge:
     def test_merge_preserves_epg_urls(self):
         from fluxo.services.export_service import ExportService
 
-        pl1 = Playlist(name="A", channels=[], epg_urls=["http://epg1.xml"])
-        pl2 = Playlist(name="B", channels=[], epg_urls=["http://epg2.xml"])
+        epg_url_1 = "http://example.com/epg1.xml"
+        epg_url_2 = "http://example.com/epg2.xml"
+        pl1 = Playlist(name="A", channels=[], epg_urls=[epg_url_1])
+        pl2 = Playlist(name="B", channels=[], epg_urls=[epg_url_2])
         merged = ExportService.merge_playlists([pl1, pl2])
-        assert "http://epg1.xml" in merged.epg_urls
-        assert "http://epg2.xml" in merged.epg_urls
+        assert epg_url_1 in merged.epg_urls
+        assert epg_url_2 in merged.epg_urls
 
     def test_merge_empty_list(self):
         from fluxo.services.export_service import ExportService
