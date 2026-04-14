@@ -31,6 +31,7 @@ Built by [diShine Digital Agency](https://dishine.it).
 - **Edit** channel names, URLs, groups, logos, and EPG IDs
 - **Organize** with drag-and-drop reordering, groups, and categories
 - **Export** clean M3U/M3U8 files preserving all metadata
+- **Merge** multiple playlists with automatic deduplication
 
 ### Metadata & EPG
 - Full support for #EXTM3U, #EXTINF, tvg-id, tvg-name, tvg-logo, group-title, catchup attributes
@@ -42,6 +43,7 @@ Built by [diShine Digital Agency](https://dishine.it).
 - **Duplicate detection** (exact and fuzzy)
 - **Bulk operations**: rename, move, find-and-replace (regex supported)
 - **Stream health checking** with background workers
+- **Playlist statistics** — channel/group counts, health score, EPG and logo coverage
 - **Undo/redo** with full history
 - **Project files** (.fluxo) for save/resume workflows
 - **Autosave** and crash recovery
@@ -180,7 +182,7 @@ python scripts/build.py
 
 | Component | Technology |
 |-----------|-----------|
-| Language | Python 3.11+ |
+| Language | Python 3.11+ (tested on 3.11, 3.12, 3.13) |
 | UI Framework | PySide6 (Qt 6) |
 | HTTP Client | httpx |
 | XML Parsing | lxml |
@@ -196,7 +198,7 @@ python scripts/build.py
 src/fluxo/
 ├── models/          # Typed data models (Channel, Playlist, EPG, Project, Collection)
 ├── parsers/         # M3U and XMLTV parsers
-├── services/        # Business logic (validation, dedup, export, EPG mapping, sharing)
+├── services/        # Business logic (validation, dedup, export, EPG mapping, sharing, statistics)
 ├── server/          # Local HTTP playlist server and shared-link management
 ├── ui/              # PySide6 widgets and dialogs
 │   └── widgets/     # Reusable UI components
@@ -217,6 +219,8 @@ pytest
 # Linux / headless CI
 QT_QPA_PLATFORM=offscreen pytest
 ```
+
+The test suite includes 140 tests covering models, parsers, services, UI widgets, integration workflows, and the sharing server.
 
 ---
 

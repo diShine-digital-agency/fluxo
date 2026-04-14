@@ -8,6 +8,7 @@ Fluxo is a local-first desktop application. All playlist data is processed on yo
 
 | Version | Supported          |
 | ------- | ------------------ |
+| 1.1.x   | :white_check_mark: |
 | 1.0.x   | :white_check_mark: |
 | < 1.0   | :x:                |
 
