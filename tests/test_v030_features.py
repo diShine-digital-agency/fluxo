@@ -116,9 +116,7 @@ class TestTemplateService:
         assert ch.url == "http://example.com/stream"
 
     def test_apply_template_does_not_share_mutable_refs(self):
-        t = ChannelTemplate(
-            name="T", extra_attributes={"k": "v"}, tags=["a"]
-        )
+        t = ChannelTemplate(name="T", extra_attributes={"k": "v"}, tags=["a"])
         ch = _make_channel()
         TemplateService.apply_template(ch, t)
         ch.extra_attributes["new"] = "x"

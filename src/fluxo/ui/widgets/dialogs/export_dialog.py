@@ -159,9 +159,7 @@ class ExportDialog(QDialog):
     def _connect_signals(self) -> None:
         self._browse_btn.clicked.connect(self._on_browse)
         self._path_edit.textChanged.connect(self._on_path_changed)
-        self._encoding_combo.currentIndexChanged.connect(
-            lambda _: self._refresh_preview()
-        )
+        self._encoding_combo.currentIndexChanged.connect(lambda _: self._refresh_preview())
         self._healthy_only_check.toggled.connect(lambda _: self._refresh_preview())
 
         for cb in self._group_checkboxes:

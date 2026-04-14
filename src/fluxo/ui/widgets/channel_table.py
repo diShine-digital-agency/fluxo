@@ -425,11 +425,7 @@ class ChannelTableWidget(QWidget):
     def get_selected_channels(self) -> list[Channel]:
         """Return the list of currently selected channels."""
         rows = self._selected_source_rows()
-        return [
-            ch
-            for r in rows
-            if (ch := self._model.channel_at(r)) is not None
-        ]
+        return [ch for r in rows if (ch := self._model.channel_at(r)) is not None]
 
     def select_all(self) -> None:
         """Select all visible rows."""
@@ -612,9 +608,7 @@ class ChannelTableWidget(QWidget):
             lambda: self._model.remove_rows_by_ids({ch.id for ch in selected})
         )
         duplicate_action.triggered.connect(lambda: self._duplicate_channels(selected))
-        toggle_fav_action.triggered.connect(
-            lambda: self._toggle_favorites(selected)
-        )
+        toggle_fav_action.triggered.connect(lambda: self._toggle_favorites(selected))
 
         menu.exec(global_pos)
 

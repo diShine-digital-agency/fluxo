@@ -56,7 +56,7 @@ class _PlaylistHandler(BaseHTTPRequestHandler):
 
         # Playlist endpoint: GET /playlist/<token>
         if path.startswith("/playlist/"):
-            token = path[len("/playlist/"):]
+            token = path[len("/playlist/") :]
             self._serve_playlist(token, parsed.query)
             return
 
@@ -70,7 +70,7 @@ class _PlaylistHandler(BaseHTTPRequestHandler):
         parsed = urlparse(self.path)
         path = parsed.path.rstrip("/")
         if path.startswith("/playlist/"):
-            token = path[len("/playlist/"):]
+            token = path[len("/playlist/") :]
             link = self.server.playlist_server._get_link(token)
             if link is None or not link.is_valid:
                 self._respond_text(HTTPStatus.NOT_FOUND, "")
@@ -105,9 +105,7 @@ class _PlaylistHandler(BaseHTTPRequestHandler):
         # Generate M3U content from the stored playlist
         playlist = ps._playlist
         if playlist is None:
-            self._respond_text(
-                HTTPStatus.SERVICE_UNAVAILABLE, "No playlist available."
-            )
+            self._respond_text(HTTPStatus.SERVICE_UNAVAILABLE, "No playlist available.")
             return
 
         m3u = ExportService.export_m3u_filtered(playlist, groups=link.groups_filter)

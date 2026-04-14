@@ -100,16 +100,10 @@ class SharingDialog(QDialog):
 
         # Links table
         self._table = QTableWidget(0, 5)
-        self._table.setHorizontalHeaderLabels(
-            ["Label", "URL", "Accesses", "Status", "Actions"]
-        )
+        self._table.setHorizontalHeaderLabels(["Label", "URL", "Accesses", "Status", "Actions"])
         self._table.horizontalHeader().setStretchLastSection(True)
-        self._table.horizontalHeader().setSectionResizeMode(
-            1, QHeaderView.ResizeMode.Stretch
-        )
-        self._table.setSelectionBehavior(
-            QTableWidget.SelectionBehavior.SelectRows
-        )
+        self._table.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
+        self._table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
         root.addWidget(self._table, 1)
 
         # Close
@@ -197,9 +191,7 @@ class SharingDialog(QDialog):
 
             if link.is_active:
                 revoke_btn = QPushButton("Revoke")
-                revoke_btn.clicked.connect(
-                    lambda _checked=False, t=link.token: self._revoke(t)
-                )
+                revoke_btn.clicked.connect(lambda _checked=False, t=link.token: self._revoke(t))
                 h.addWidget(revoke_btn)
 
             self._table.setCellWidget(row, 4, actions)

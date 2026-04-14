@@ -47,6 +47,4 @@ class FluxoStatusBar(QStatusBar):
             else:
                 unknown += 1
 
-        self._health_label.setText(
-            f"Health: {alive} alive · {dead} dead · {unknown} unknown"
-        )
+        self._health_label.setText(f"Health: {alive} alive · {dead} dead · {unknown} unknown")

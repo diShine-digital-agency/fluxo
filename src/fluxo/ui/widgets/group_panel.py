@@ -130,7 +130,9 @@ class GroupPanel(QWidget):
     # -- slots -------------------------------------------------------------
 
     def _on_item_changed(
-        self, current: QListWidgetItem | None, _prev: QListWidgetItem | None,
+        self,
+        current: QListWidgetItem | None,
+        _prev: QListWidgetItem | None,
     ) -> None:
         if current is None:
             return
@@ -170,9 +172,7 @@ class GroupPanel(QWidget):
             self.group_renamed.emit("", name)
 
     def _rename_group(self, old_name: str) -> None:
-        new_name, ok = QInputDialog.getText(
-            self, "Rename Group", "New name:", text=old_name
-        )
+        new_name, ok = QInputDialog.getText(self, "Rename Group", "New name:", text=old_name)
         if ok and new_name.strip() and new_name.strip() != old_name:
             self.group_renamed.emit(old_name, new_name.strip())
 
@@ -184,7 +184,11 @@ class GroupPanel(QWidget):
         if not other_groups:
             return
         target, ok = QInputDialog.getItem(
-            self, "Merge Group", f'Merge "{source_group}" into:', other_groups, editable=False,
+            self,
+            "Merge Group",
+            f'Merge "{source_group}" into:',
+            other_groups,
+            editable=False,
         )
         if ok and target:
             self.group_renamed.emit(source_group, target)
