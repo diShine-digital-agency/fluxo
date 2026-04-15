@@ -1,17 +1,30 @@
-# Fluxo, a dedicated M3U/IPTV playlist manager for power users
+# 📺 Fluxo, a dedicated M3U/IPTV playlist manager for power users
+
+<div align="center">
+  
+[![diShine Logo](https://dishine.it/favicon.ico)](https://dishine.it/)
+
+***Transform. Automate. Shine!***
+
+[![Website](https://img.shields.io/badge/Website-dishine.it-blue)](https://dishine.it/)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-diShine-blue)](https://linkedin.com/company/100682596)
+[![Location](https://img.shields.io/badge/Location-Milan%2C%20Italy-green)]()
+[![License: CC0](https://img.shields.io/badge/License-CC0%201.0-lightgrey)](LICENSE)
 
 <p align="center">
-  <img src="docs/images/fluxo_scene_02_selected_channel_detail.webp" alt="Fluxo select channel" width="65%">
+  <img src="docs/images/fluxo_scene_02_selected_channel_detail.webp" alt="Fluxo select channel" width="90%">
 </p>
 
-Parse massive M3U lists from file or URL to visually edit channel orders, rename streams, fix broken EPG/XMLTV links, and assign custom logos. Save your optimized playlist locally or host it as a dynamic link for immediate streaming.
+***Parse massive M3U lists from file or URL to visually edit channel orders, rename streams, fix broken EPG/XMLTV links, and assign custom logos. Save your optimized playlist locally or host it as a dynamic link for immediate streaming.***
+
+Built by [diShine Digital Agency](https://dishine.it).
+
+</div>
 
 <p align="center">
   <img src="docs/images/fluxo_scene_03_grouped_filter_workflow.webp" alt="Fluxo group filter" width="49%">
   <img src="docs/images/fluxo_scene_05_host_share_dialog.webp" alt="Fluxo host share dialog" width="49%">
 </p>
-
-Built by [diShine Digital Agency](https://dishine.it).
 
 > **Fluxo is a neutral playlist-management tool for lawful personal and organizational use.**
 > It does not bundle, provide, or facilitate access to copyrighted streams or pirate content.
