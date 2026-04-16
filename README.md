@@ -37,7 +37,7 @@ Built by [diShine Digital Agency](https://dishine.it).
 
 ## Features
 
-### Core Playlist Management
+### Core playlist management
 - **Create** new playlists from scratch
 - **Import** M3U from local files or remote URLs
 - **Parse** large playlists robustly (100K+ channels)
@@ -52,7 +52,7 @@ Built by [diShine Digital Agency](https://dishine.it).
 - Intelligent EPG mapping assistant with fuzzy matching
 - EPG mapping validation
 
-### Power User Features
+### Power user features
 - **Duplicate detection** (exact and fuzzy)
 - **Bulk operations**: rename, move, find-and-replace (regex supported)
 - **Stream health checking** with background workers
@@ -62,7 +62,7 @@ Built by [diShine Digital Agency](https://dishine.it).
 - **Autosave** and crash recovery
 - **Keyboard shortcuts** for all major actions
 
-### Hosting & Sharing
+### Hosting & sharing
 - **Self-hosted local playlist server** — serve playlists over HTTP on your LAN
 - **Shareable links** with optional password protection (PBKDF2)
 - **Link expiration** and access tracking
@@ -77,7 +77,7 @@ Built by [diShine Digital Agency](https://dishine.it).
 
 ---
 
-## User Interface
+## User interface
 
 Fluxo uses a three-panel layout optimized for playlist editing workflows:
 
@@ -107,7 +107,7 @@ Fluxo uses a three-panel layout optimized for playlist editing workflows:
 
 ---
 
-## Sharing Workflow
+## Sharing workflow
 
 Host your playlist on the local network so other devices can stream from it:
 
@@ -136,7 +136,7 @@ Host your playlist on the local network so other devices can stream from it:
 
 ---
 
-## Keyboard Shortcuts
+## Keyboard shortcuts
 
 | Shortcut | Action |
 |----------|--------|
@@ -160,7 +160,7 @@ Host your playlist on the local network so other devices can stream from it:
 
 ## Installation
 
-### From Source
+### From source
 
 ```bash
 # Clone the repository
@@ -179,7 +179,7 @@ pip install -e ".[dev]"
 python -m fluxo
 ```
 
-### Desktop Builds
+### Desktop builds
 
 Pre-built installers for macOS and Windows are available on the [Releases](https://github.com/diShine-digital-agency/fluxo/releases) page.
 
@@ -191,7 +191,7 @@ python scripts/build.py
 
 ---
 
-## Tech Stack
+## Tech stack
 
 | Component | Technology |
 |-----------|-----------|
@@ -205,7 +205,7 @@ python scripts/build.py
 
 ---
 
-## Project Structure
+## Project structure
 
 ```
 src/fluxo/
